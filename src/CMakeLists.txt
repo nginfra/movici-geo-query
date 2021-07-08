@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(boost_geo_mapper)
+project(boost_geo_query)
 
 
 set(Boost_USE_STATIC_LIBS OFF) 
@@ -18,7 +18,7 @@ if (WIN32)
 endif()
 
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/boost_geo_mapper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/boost_geo_query.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/unit_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/test_main.cpp
 )
