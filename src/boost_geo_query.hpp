@@ -3,12 +3,13 @@
 #include <types.hpp>
 namespace boost_geo_query
 {
-    // template <class T>
+    template <class T>
     class RTreeGeometryQuery
     {
     public:
-        RTreeGeometryQuery(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree) : _src_geom(pv), _target_geom(points), _rTree(rTree) {}
-        RTreeGeometryQuery(const ClosedPolygonVector &pv, const PointVector &points) : _src_geom(pv), _target_geom(points)
+        using SrcVec = std::vector<T>;
+        RTreeGeometryQuery(const SrcVec &pv, const PointVector &points, const RTree &rTree) : _src_geom(pv), _target_geom(points), _rTree(rTree) {}
+        RTreeGeometryQuery(const SrcVec &pv, const PointVector &points) : _src_geom(pv), _target_geom(points)
         {
 
             RTree rTree;
@@ -25,16 +26,16 @@ namespace boost_geo_query
         IntersectingResults find_intersecting(bool require_full_overlap = false);
         // touching != overlapping
         IntersectingResults find_overlapping() { return find_intersecting(true); }
-        IndexVector find_intersecting(const ClosedPolygon &poly, bool require_full_overlap);
+        IndexVector find_intersecting(const T &poly, bool require_full_overlap);
 
-        DistanceResult find_nearest(const ClosedPolygon &poly); // element idx + distance
+        DistanceResult find_nearest(const T &poly); // element idx + distance
         DistanceResults find_nearest();
 
-        IndexVector find_in_radius(const ClosedPolygon &poly, Distance dist);
+        IndexVector find_in_radius(const T &poly, Distance dist);
         IntersectingResults find_in_radius(Distance dist);
 
     private:
-        const ClosedPolygonVector _src_geom;
+        const SrcVec _src_geom;
         const PointVector _target_geom;
         RTree _rTree;
     };

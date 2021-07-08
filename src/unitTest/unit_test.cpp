@@ -35,7 +35,7 @@ namespace boost_geo_query
 
             WHEN("Intersecting is called for a polygon")
             {
-                RTreeGeometryQuery query(pv, points, rtree);
+                RTreeGeometryQuery<ClosedPolygon> query(pv, points, rtree);
                 IntersectingResults ir = query.find_intersecting();
 
                 THEN("intersecting.results == (0, 1, 5, 6)")
@@ -53,7 +53,7 @@ namespace boost_geo_query
 
             WHEN("Overlapping is called for a polygon")
             {
-                RTreeGeometryQuery query(pv, points, rtree);
+                RTreeGeometryQuery<ClosedPolygon> query(pv, points, rtree);
                 IntersectingResults ir = query.find_overlapping();
 
                 THEN("intersecting.results == ()")
@@ -71,12 +71,12 @@ namespace boost_geo_query
 
             WHEN("No tree is given")
             {
-                RTreeGeometryQuery query(pv, points);
+                RTreeGeometryQuery<ClosedPolygon> query(pv, points);
                 IntersectingResults ir = query.find_intersecting();
 
                 THEN("it is created on the fly and the results are the same")
                 {
-                    IntersectingResults expected = RTreeGeometryQuery(pv, points, rtree).find_intersecting();
+                    IntersectingResults expected = RTreeGeometryQuery<ClosedPolygon>(pv, points, rtree).find_intersecting();
                     REQUIRE(ir.results == expected.results);
                     REQUIRE(ir.idxPointer == expected.idxPointer);
                 }
@@ -114,7 +114,7 @@ namespace boost_geo_query
 
             WHEN("Nearest is called for a polygon")
             {
-                RTreeGeometryQuery query(pv, points, rtree);
+                RTreeGeometryQuery<ClosedPolygon> query(pv, points, rtree);
                 DistanceResults dr = query.find_nearest();
 
                 THEN("nearest.results == (6)")
@@ -123,7 +123,7 @@ namespace boost_geo_query
                     REQUIRE(dr.results == expected);
                 }
 
-                THEN("nearest.distance == (0,4)")
+                THEN("nearest.distance == (sqrt(2 * 0.2 * 0.2))")
                 {
                     Distance expected = sqrt(2 * 0.2 * 0.2);
                     REQUIRE(abs(dr.distances[0] - expected) < (1.0e-6));
@@ -165,7 +165,7 @@ namespace boost_geo_query
 
             WHEN("find in radius is called for a polygon with radius 0")
             {
-                RTreeGeometryQuery query(pv, points, rtree);
+                RTreeGeometryQuery<ClosedPolygon> query(pv, points, rtree);
                 Distance radius = 0.0;
                 IntersectingResults ir = query.find_in_radius(radius);
 
@@ -184,7 +184,7 @@ namespace boost_geo_query
 
             WHEN("find in radius is called for a polygon with radius 1")
             {
-                RTreeGeometryQuery query(pv, points, rtree);
+                RTreeGeometryQuery<ClosedPolygon> query(pv, points, rtree);
                 Distance radius = 1.0;
                 IntersectingResults ir = query.find_in_radius(radius);
 
@@ -202,5 +202,50 @@ namespace boost_geo_query
             }
         }
     }
+
+
+    SCENARIO("Searching for nearest points to some other points")
+    {
+        GIVEN("A set of points in a tree and some points")
+        {
+            PointVector points;
+            RTree rtree;
+
+            for (double y = 0.0; y <= 4.0; y++)
+            {
+                for (double x = 0.0; x <= 4.0; x++)
+                {
+                    Point p = Point(x, y);
+                    Box b;
+                    boost::geometry::envelope(p, b);
+                    points.push_back(p);
+                    rtree.insert(std::make_pair(b, (int)(y * 5 + x)));
+                }
+            }
+
+            PointVector pv;
+            pv.push_back(Point(1.2, 1.2));
+            pv.push_back(Point(3.0, 1.4));
+
+            WHEN("Nearest is called for the points")
+            {
+                RTreeGeometryQuery<Point> query(pv, points, rtree);
+                DistanceResults dr = query.find_nearest();
+
+                THEN("nearest.results == (6, 8)")
+                {
+                    IndexVector expected = {6, 8};
+                    REQUIRE(dr.results == expected);
+                }
+
+                THEN("nearest.distance == (sqrt(2 * 0.2 * 0.2), 0.4)")
+                {
+                    REQUIRE(abs(dr.distances[0] - sqrt(2 * 0.2 * 0.2)) < (1.0e-6));
+                    REQUIRE(abs(dr.distances[1] - 0.4) < (1.0e-6));
+                }
+            }
+        }
+    }
+
 
 }

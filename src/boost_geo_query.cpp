@@ -5,14 +5,14 @@
 
 namespace boost_geo_query
 {
-
-    DistanceResults RTreeGeometryQuery::find_nearest()
+    template <class T>
+    DistanceResults RTreeGeometryQuery<T>::find_nearest()
     {
         DistanceResults drs;
         drs.results.reserve(_src_geom.size());
         drs.distances.reserve(_src_geom.size());
 
-        for (const auto &p : _src_geom)
+        for (const T &p : _src_geom)
         {
             DistanceResult dr = find_nearest(p);
             drs.results.push_back(dr.result);
@@ -21,7 +21,8 @@ namespace boost_geo_query
         return drs;
     }
 
-    DistanceResult RTreeGeometryQuery::find_nearest(const ClosedPolygon &poly)
+    template <class T>
+    DistanceResult RTreeGeometryQuery<T>::find_nearest(const T &poly)
     {
         bool guaranteed_found = false;
         Index min_i;
@@ -79,7 +80,8 @@ namespace boost_geo_query
         return DistanceResult{min_i, min_d};
     }
 
-    IntersectingResults RTreeGeometryQuery::find_intersecting(bool require_full_overlap)
+    template <class T>
+    IntersectingResults RTreeGeometryQuery<T>::find_intersecting(bool require_full_overlap)
     {
         IntersectingResults ir;
         ir.idxPointer.push_back(0);
@@ -96,7 +98,8 @@ namespace boost_geo_query
         return ir;
     }
 
-    IndexVector RTreeGeometryQuery::find_intersecting(const ClosedPolygon &poly, bool require_full_overlap)
+    template <class T>
+    IndexVector RTreeGeometryQuery<T>::find_intersecting(const T &poly, bool require_full_overlap)
     {
         RTreeLookupVector results;
         const Box b = bg::return_envelope<Box>(poly);
@@ -116,7 +119,8 @@ namespace boost_geo_query
         return rv;
     }
 
-    IntersectingResults RTreeGeometryQuery::find_in_radius(Distance dist)
+    template <class T>
+    IntersectingResults RTreeGeometryQuery<T>::find_in_radius(Distance dist)
     {
         IntersectingResults ir;
         ir.idxPointer.push_back(0);
@@ -133,7 +137,8 @@ namespace boost_geo_query
         return ir;
     }
 
-    IndexVector RTreeGeometryQuery::find_in_radius(const ClosedPolygon &poly, Distance dist)
+    template <class T>
+    IndexVector RTreeGeometryQuery<T>::find_in_radius(const T &poly, Distance dist)
     {
         // create box around geometry to capture min/max
         const Box b = bg::return_envelope<Box>(poly);
@@ -161,4 +166,7 @@ namespace boost_geo_query
         return rv;
     }
 
+
+    template class RTreeGeometryQuery<ClosedPolygon>;
+    template class RTreeGeometryQuery<Point>;
 }
