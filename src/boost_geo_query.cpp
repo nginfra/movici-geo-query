@@ -6,22 +6,22 @@
 namespace boost_geo_query
 {
 
-    DistanceResults Thingy::find_nearest(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree)
+    DistanceResults RTreeGeometryQuery::find_nearest()
     {
         DistanceResults drs;
-        drs.results.reserve(pv.size());
-        drs.distances.reserve(pv.size());
+        drs.results.reserve(_src_geom.size());
+        drs.distances.reserve(_src_geom.size());
 
-        for (const auto &p : pv)
+        for (const auto &p : _src_geom)
         {
-            DistanceResult dr = find_nearest(p, points, rTree);
+            DistanceResult dr = find_nearest(p);
             drs.results.push_back(dr.result);
             drs.distances.push_back(dr.distance);
         }
         return drs;
     }
 
-    DistanceResult Thingy::find_nearest(const ClosedPolygon &poly, const PointVector &points, const RTree &rTree)
+    DistanceResult RTreeGeometryQuery::find_nearest(const ClosedPolygon &poly)
     {
         bool guaranteed_found = false;
         Index min_i;
@@ -33,17 +33,17 @@ namespace boost_geo_query
         while (!guaranteed_found)
         {
             // iterate over nearest elements. Use iterator to ensure nearest-farthest sorting
-            RTreeIterator it = rTree.qbegin(bgi::nearest(poly_box, nb_search_elements));
+            RTreeIterator it = _rTree.qbegin(bgi::nearest(poly_box, nb_search_elements));
 
             // skip already visited elements
             std::advance(it, visited);
 
-            for (; it != rTree.qend(); ++it)
+            for (; it != _rTree.qend(); ++it)
             {
                 const Box &b = it->first;
                 Index idx = it->second;
 
-                const Point &point = points[idx];
+                const Point &point = _target_geom[idx];
 
                 Distance d = bg::comparable_distance(poly, point);
                 if (d < min_d)
@@ -66,7 +66,7 @@ namespace boost_geo_query
             }
 
             // went through all elements: closest found
-            if (visited >= points.size())
+            if (visited >= _target_geom.size())
             {
                 break;
             }
@@ -75,18 +75,18 @@ namespace boost_geo_query
             nb_search_elements *= 2;
         }
 
-        min_d = bg::distance(poly, points[min_i]);
+        min_d = bg::distance(poly, _target_geom[min_i]);
         return DistanceResult{min_i, min_d};
     }
 
-    IntersectingResults Thingy::find_intersecting(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree, bool require_full_overlap)
+    IntersectingResults RTreeGeometryQuery::find_intersecting(bool require_full_overlap)
     {
         IntersectingResults ir;
         ir.idxPointer.push_back(0);
 
-        for (const auto &p : pv)
+        for (const auto &p : _src_geom)
         {
-            IndexVector r = find_intersecting(p, points, rTree, require_full_overlap);
+            IndexVector r = find_intersecting(p, require_full_overlap);
             if (r.size() > 0)
             {
                 ir.results.insert(ir.results.end(), r.begin(), r.end());
@@ -96,16 +96,16 @@ namespace boost_geo_query
         return ir;
     }
 
-    IndexVector Thingy::find_intersecting(const ClosedPolygon &poly, const PointVector &points, const RTree &rTree, bool require_full_overlap)
+    IndexVector RTreeGeometryQuery::find_intersecting(const ClosedPolygon &poly, bool require_full_overlap)
     {
         RTreeLookupVector results;
         const Box b = bg::return_envelope<Box>(poly);
-        rTree.query(bgi::intersects(b), std::back_inserter(results));
+        _rTree.query(bgi::intersects(b), std::back_inserter(results));
         IndexVector rv;
         for (auto &result : results)
         {
             Index idx = result.second;
-            const Point &point = points[idx];
+            const Point &point = _target_geom[idx];
             if (bg::intersects(poly, point) && (require_full_overlap ? !bg::touches(poly, point) : true))
             {
                 rv.push_back(idx);
@@ -116,14 +116,14 @@ namespace boost_geo_query
         return rv;
     }
 
-    IntersectingResults Thingy::find_in_radius(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree, Distance dist)
+    IntersectingResults RTreeGeometryQuery::find_in_radius(Distance dist)
     {
         IntersectingResults ir;
         ir.idxPointer.push_back(0);
 
-        for (const auto &p : pv)
+        for (const auto &p : _src_geom)
         {
-            IndexVector r = find_in_radius(p, points, rTree, dist);
+            IndexVector r = find_in_radius(p, dist);
             if (r.size() > 0)
             {
                 ir.results.insert(ir.results.end(), r.begin(), r.end());
@@ -133,7 +133,7 @@ namespace boost_geo_query
         return ir;
     }
 
-    IndexVector Thingy::find_in_radius(const ClosedPolygon &poly, const PointVector &points, const RTree &rTree, Distance dist)
+    IndexVector RTreeGeometryQuery::find_in_radius(const ClosedPolygon &poly, Distance dist)
     {
         // create box around geometry to capture min/max
         const Box b = bg::return_envelope<Box>(poly);
@@ -144,14 +144,14 @@ namespace boost_geo_query
         const Box b_radius = Box(radius_box_min_point, radius_box_max_point);
         // lookup bigger box to find candidates
         RTreeLookupVector results;
-        rTree.query(bgi::intersects(b_radius), std::back_inserter(results));
+        _rTree.query(bgi::intersects(b_radius), std::back_inserter(results));
 
         // test candidates for actual distance to geometry
         IndexVector rv;
         for (auto &result : results)
         {
             Index idx = result.second;
-            const Point &point = points[idx];
+            const Point &point = _target_geom[idx];
             if (bg::distance(poly, point) <= dist)
             {
                 rv.push_back(idx);

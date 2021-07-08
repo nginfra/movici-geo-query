@@ -3,20 +3,40 @@
 #include <types.hpp>
 namespace boost_geo_query
 {
-
-    class Thingy
+    // template <class T>
+    class RTreeGeometryQuery
     {
     public:
-        IntersectingResults find_intersecting(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree, bool require_full_overlap = false);
-        // touching != overlapping
-        IntersectingResults find_overlapping(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree) { return find_intersecting(pv, points, rTree, true); }
-        IndexVector find_intersecting(const ClosedPolygon &poly, const PointVector &points, const RTree &rTree, bool require_full_overlap);
+        RTreeGeometryQuery(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree) : _src_geom(pv), _target_geom(points), _rTree(rTree) {}
+        RTreeGeometryQuery(const ClosedPolygonVector &pv, const PointVector &points) : _src_geom(pv), _target_geom(points)
+        {
 
-        DistanceResult find_nearest(const ClosedPolygon &poly, const PointVector &points, const RTree &rTree); // element idx + distance
-        DistanceResults find_nearest(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree);
-        // RadiusResult find_in_radius(); // any result in object + within radius r .. something with buffer?
-        IndexVector find_in_radius(const ClosedPolygon &poly, const PointVector &points, const RTree &rTree, Distance dist);
-        IntersectingResults find_in_radius(const ClosedPolygonVector &pv, const PointVector &points, const RTree &rTree, Distance dist);
+            RTree rTree;
+            for (Index i = 0; i < points.size(); i++)
+            {
+                Box b;
+                boost::geometry::envelope(points[i], b);
+                rTree.insert(std::make_pair(b, i));
+            }
+            _rTree = rTree;
+        }
+        ~RTreeGeometryQuery() {}
+
+        IntersectingResults find_intersecting(bool require_full_overlap = false);
+        // touching != overlapping
+        IntersectingResults find_overlapping() { return find_intersecting(true); }
+        IndexVector find_intersecting(const ClosedPolygon &poly, bool require_full_overlap);
+
+        DistanceResult find_nearest(const ClosedPolygon &poly); // element idx + distance
+        DistanceResults find_nearest();
+
+        IndexVector find_in_radius(const ClosedPolygon &poly, Distance dist);
+        IntersectingResults find_in_radius(Distance dist);
+
+    private:
+        const ClosedPolygonVector _src_geom;
+        const PointVector _target_geom;
+        RTree _rTree;
     };
 
 }

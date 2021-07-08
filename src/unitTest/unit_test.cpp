@@ -35,8 +35,8 @@ namespace boost_geo_query
 
             WHEN("Intersecting is called for a polygon")
             {
-                Thingy thing;
-                IntersectingResults ir = thing.find_intersecting(pv, points, rtree);
+                RTreeGeometryQuery query(pv, points, rtree);
+                IntersectingResults ir = query.find_intersecting();
 
                 THEN("intersecting.results == (0, 1, 5, 6)")
                 {
@@ -53,8 +53,8 @@ namespace boost_geo_query
 
             WHEN("Overlapping is called for a polygon")
             {
-                Thingy thing;
-                IntersectingResults ir = thing.find_overlapping(pv, points, rtree);
+                RTreeGeometryQuery query(pv, points, rtree);
+                IntersectingResults ir = query.find_overlapping();
 
                 THEN("intersecting.results == ()")
                 {
@@ -66,6 +66,19 @@ namespace boost_geo_query
                 {
                     IndexVector expected = {0};
                     REQUIRE(ir.idxPointer == expected);
+                }
+            }
+
+            WHEN("No tree is given")
+            {
+                RTreeGeometryQuery query(pv, points);
+                IntersectingResults ir = query.find_intersecting();
+
+                THEN("it is created on the fly and the results are the same")
+                {
+                    IntersectingResults expected = RTreeGeometryQuery(pv, points, rtree).find_intersecting();
+                    REQUIRE(ir.results == expected.results);
+                    REQUIRE(ir.idxPointer == expected.idxPointer);
                 }
             }
         }
@@ -101,8 +114,8 @@ namespace boost_geo_query
 
             WHEN("Nearest is called for a polygon")
             {
-                Thingy thing;
-                DistanceResults dr = thing.find_nearest(pv, points, rtree);
+                RTreeGeometryQuery query(pv, points, rtree);
+                DistanceResults dr = query.find_nearest();
 
                 THEN("nearest.results == (6)")
                 {
@@ -152,9 +165,9 @@ namespace boost_geo_query
 
             WHEN("find in radius is called for a polygon with radius 0")
             {
-                Thingy thing;
+                RTreeGeometryQuery query(pv, points, rtree);
                 Distance radius = 0.0;
-                IntersectingResults ir = thing.find_in_radius(pv, points, rtree, radius);
+                IntersectingResults ir = query.find_in_radius(radius);
 
                 THEN("One point is found: intersecting.results == (12)")
                 {
@@ -171,9 +184,9 @@ namespace boost_geo_query
 
             WHEN("find in radius is called for a polygon with radius 1")
             {
-                Thingy thing;
+                RTreeGeometryQuery query(pv, points, rtree);
                 Distance radius = 1.0;
-                IntersectingResults ir = thing.find_in_radius(pv, points, rtree, radius);
+                IntersectingResults ir = query.find_in_radius(radius);
 
                 THEN("5 points are found: intersecting.results == (7,11,12,13,17)")
                 {
