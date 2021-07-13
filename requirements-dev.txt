@@ -1,0 +1,7 @@
+pytest>=6.2.4
+bandit
+pylint
+safety
+coverage
+pytest-cov
+flake8

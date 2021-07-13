@@ -1,0 +1,39 @@
+image: eu.gcr.io/movici-develop/cicd-build-env:latest
+
+stages:
+  - test
+  - build
+
+variables:
+  KUBERNETES_MEMORY_REQUEST: 1536Mi
+  KUBERNETES_MEMORY_LIMIT: 1536Mi
+  KUBERNETES_CPU_REQUEST: 600m
+  KUBERNETES_CPU_LIMIT: 1000m
+
+test:
+  stage: test
+  script:
+    - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
+    - build-wrapper-linux-x86-64 --out-dir bw_output python setup.py build_ext
+    - pip wheel --no-deps .
+    - pip install *.whl
+    - make test-all
+
+build:py37:
+  stage: build
+  image: eu.gcr.io/movici-develop/cicd-build-env-py37:latest
+  artifacts:
+    untracked: true
+  script:
+    - pip install -r requirements.txt
+    - pip wheel --no-deps .
+
+build:py38:
+  stage: build
+  image: eu.gcr.io/movici-develop/cicd-build-env-py38:latest
+  artifacts:
+    untracked: true
+  script:
+    - pip install -r requirements.txt
+    - pip wheel --no-deps .

@@ -13,12 +13,12 @@ namespace boost_geo_query
      namespace bgi = bg::index;
      namespace bgm = bg::model;
      using Point = bgm::d2::point_xy<float, bg::cs::cartesian>;
-     using LineString = bgm::linestring<Point>;
      using Box = bgm::box<Point>;
+     using LineString = bgm::linestring<Point>;
      using OpenPolygon = bgm::polygon<Point, false, false>;  // ccw, open polygon
      using ClosedPolygon = bgm::polygon<Point, false, true>; // ccw, closed polygon
 
-     #define Vector std::vector
+#define Vector std::vector
      using Index = uint64_t;
      using Distance = double;
      using PointVector = Vector<Point>;
@@ -34,6 +34,10 @@ namespace boost_geo_query
      using RTree = bgi::rtree<RTreeLookup, bgi::rstar<rtree_node_limit>>;
      using RTreeIterator = RTree::const_query_iterator;
 
+     // only compile templates for these cases
+     template <class T>
+     using GEO_TYPES = std::enable_if_t<std::is_same_v<T, Point> || std::is_same_v<T, LineString> || std::is_same_v<T, OpenPolygon> || std::is_same_v<T, ClosedPolygon>>;
+
      struct DistanceResult
      {
           Index result;
@@ -46,32 +50,24 @@ namespace boost_geo_query
           DistanceVector distances;
      };
 
-     class Vector2D
-     {
-     public:
-          Vector2D(const PointVector &p, const IndexVector &i) : _data{p}, _index{i} {};
-
-          void push_back(const Point &entry)
-          {
-               _index.push_back(_data.size());
-               _data.push_back(entry);
-          }
-          void push_back(const PointVector &entries)
-          {
-               _index.push_back(_data.size());
-               _data.insert(_data.end(), entries.begin(), entries.end());
-          }
-          PointVector get(const Index &i) { return PointVector(_data.begin() + _index[i], _data.begin() + _index[i + 1]); }
-
-     private:
-          PointVector _data{PointVector(0)};
-          IndexVector _index{IndexVector{0}};
-     };
-
      struct IntersectingResults
      {
           IndexVector results;
           IndexVector idxPointer;
      };
 
+     struct Input
+     {
+          PointVector points;
+          IndexVector rowPtr;
+          std::string type;
+     };
+
+     namespace accepted_input_types
+     {
+          const std::string point = "point";
+          const std::string linestring = "linestring";
+          const std::string openPolygon = "open_polygon";
+          const std::string closedPolygon = "closed_polygon";
+     }
 }

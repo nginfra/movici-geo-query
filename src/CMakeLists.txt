@@ -18,8 +18,9 @@ if (WIN32)
 endif()
 
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/boost_geo_query.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/unit_test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/python_geo_query.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/boost_geo_query_test.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/python_geo_query_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/test_main.cpp
 )
 
