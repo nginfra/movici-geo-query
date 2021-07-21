@@ -11,24 +11,25 @@ namespace py = pybind11;
 PYBIND11_MAKE_OPAQUE(boost_geo_query::IndexVector);
 PYBIND11_MAKE_OPAQUE(boost_geo_query::DistanceVector);
 
-
-PYBIND11_MODULE(interface, m) {
+PYBIND11_MODULE(interface, m)
+{
     py::bind_vector<boost_geo_query::DistanceVector>(m, "CDistanceVector");
     py::bind_vector<boost_geo_query::IndexVector>(m, "CIndexVector");
 
-     py::class_<boost_geo_query::PythonGeoQuery>(m, "CGeoQuery")
+    py::class_<boost_geo_query::PythonGeoQuery>(m, "CGeoQuery")
         .def(py::init<const boost_geo_query::Input &>())
         .def("nearest_to", &boost_geo_query::PythonGeoQuery::nearest_to);
 
-     py::class_<boost_geo_query::Input>(m, "CInput")
-         .def(py::init<
-           py::array_t<double, py::array::c_style | py::array::forcecast> &,
-           const boost_geo_query::IndexVector &,
-           const std::string &>());
+    py::class_<boost_geo_query::Input>(m, "CInput")
+        .def(py::init<
+             py::array_t<double, py::array::c_style | py::array::forcecast> &,
+             const boost_geo_query::IndexVector &,
+             const std::string &>());
 
     // todo maybe return as nparray?
-     py::class_<boost_geo_query::DistanceResults>(m, "CDistanceResults")
-     .def("results", [](const boost_geo_query::DistanceResults &dr) { return dr.results; })
-     .def("distances", [](const boost_geo_query::DistanceResults &dr) { return dr.distances; });
-
+    py::class_<boost_geo_query::DistanceResults>(m, "CDistanceResults")
+        .def("results", [](const boost_geo_query::DistanceResults &dr)
+             { return dr.results; })
+        .def("distances", [](const boost_geo_query::DistanceResults &dr)
+             { return dr.distances; });
 }

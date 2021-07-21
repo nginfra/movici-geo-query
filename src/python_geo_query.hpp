@@ -69,33 +69,33 @@ namespace boost_geo_query
                 auto data = input.xy.data();
                 for (Index i = 0; i < input.length; ++i)
                 {
-                    rv.push_back(Point(data[i*input.unitSize], data[i*input.unitSize+1]));
+                    rv.push_back(Point(data[i * input.unitSize], data[i * input.unitSize + 1]));
                 }
             }
-//            else if constexpr (std::is_same_v<U, LineString>) //todo
-//            {
-//                for (Index i = 0; i < input.rowPtr.size() - 1; ++i)
-//                {
-//                    U line;
-//                    for (Index j = input.rowPtr[i]; j < input.rowPtr[i + 1]; ++j)
-//                    {
-//                        line.push_back(Point(input.points[j].x, input.points[j].y));
-//                    }
-//                    rv.push_back(line);
-//                }
-//            }
-//            else if constexpr (std::is_same_v<U, OpenPolygon> || std::is_same_v<U, ClosedPolygon>)
-//            {
-//                for (Index i = 0; i < input.rowPtr.size() - 1; ++i)
-//                {
-//                    U polygon;
-//                    for (Index j = input.rowPtr[i]; j < input.rowPtr[i + 1]; ++j)
-//                    {
-//                        polygon.outer().push_back(Point(input.points[j].x, input.points[j].y));
-//                    }
-//                    rv.push_back(polygon);
-//                }
-//            }
+            //            else if constexpr (std::is_same_v<U, LineString>) //todo
+            //            {
+            //                for (Index i = 0; i < input.rowPtr.size() - 1; ++i)
+            //                {
+            //                    U line;
+            //                    for (Index j = input.rowPtr[i]; j < input.rowPtr[i + 1]; ++j)
+            //                    {
+            //                        line.push_back(Point(input.points[j].x, input.points[j].y));
+            //                    }
+            //                    rv.push_back(line);
+            //                }
+            //            }
+            //            else if constexpr (std::is_same_v<U, OpenPolygon> || std::is_same_v<U, ClosedPolygon>)
+            //            {
+            //                for (Index i = 0; i < input.rowPtr.size() - 1; ++i)
+            //                {
+            //                    U polygon;
+            //                    for (Index j = input.rowPtr[i]; j < input.rowPtr[i + 1]; ++j)
+            //                    {
+            //                        polygon.outer().push_back(Point(input.points[j].x, input.points[j].y));
+            //                    }
+            //                    rv.push_back(polygon);
+            //                }
+            //            }
             return rv;
         }
     };
