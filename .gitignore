@@ -23,6 +23,10 @@ __pycache__/
 # mypy
 .mypy_cache/
 
+# pyd and so
+*.pyd
+*.so
+
 # Coverage report
 .coverage
 coverage.xml

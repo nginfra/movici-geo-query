@@ -11,7 +11,7 @@ class Geometry:
     csr: bool = True
 
     def __init__(self, points, row_ptr=None):
-        self.points = points
+        self.points = np.array(points)
         self.row_ptr = row_ptr
 
         self._verify()

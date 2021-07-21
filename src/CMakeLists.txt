@@ -11,6 +11,7 @@ find_package(Boost 1.76.0 REQUIRED
 
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}) 
 # link_libraries(${Boost_LIBRARIES})
+add_subdirectory(pybind11)
 
 if (WIN32)
   add_definitions( -DBOOST_ALL_NO_LIB )

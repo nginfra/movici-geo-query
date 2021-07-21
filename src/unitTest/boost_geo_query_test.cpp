@@ -47,7 +47,7 @@ namespace boost_geo_query
                 THEN("intersecting.idxPointer == (0,4)")
                 {
                     IndexVector expected = {0, 4};
-                    REQUIRE(ir.idxPointer == expected);
+                    REQUIRE(ir.rowPtr == expected);
                 }
             }
 
@@ -65,7 +65,7 @@ namespace boost_geo_query
                 THEN("intersecting.idxPointer == (0)")
                 {
                     IndexVector expected = {0};
-                    REQUIRE(ir.idxPointer == expected);
+                    REQUIRE(ir.rowPtr == expected);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace boost_geo_query
                 {
                     IntersectingResults expected = RTreeGeometryQuery<Point>(points, rtree).intersects_with(pv);
                     REQUIRE(ir.results == expected.results);
-                    REQUIRE(ir.idxPointer == expected.idxPointer);
+                    REQUIRE(ir.rowPtr == expected.rowPtr);
                 }
             }
         }
@@ -178,7 +178,7 @@ namespace boost_geo_query
                 THEN("intersecting.idxPointer == (0, 1)")
                 {
                     IndexVector expected = {0, 1};
-                    REQUIRE(ir.idxPointer == expected);
+                    REQUIRE(ir.rowPtr == expected);
                 }
             }
 
@@ -197,7 +197,7 @@ namespace boost_geo_query
                 THEN("intersecting.idxPointer == (0, 5)")
                 {
                     IndexVector expected = {0, 5};
-                    REQUIRE(ir.idxPointer == expected);
+                    REQUIRE(ir.rowPtr == expected);
                 }
             }
         }

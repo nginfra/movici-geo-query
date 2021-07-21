@@ -24,7 +24,7 @@ namespace boost_geo_query
         }
         else
         {
-            throw std::invalid_argument("Input type unknown");
+            throw std::invalid_argument("Input type unknown. Choose from " + accepted_input_types::point + ", " + accepted_input_types::linestring + ", " + accepted_input_types::openPolygon + " and " + accepted_input_types::closedPolygon + ".");
         }
     }
 

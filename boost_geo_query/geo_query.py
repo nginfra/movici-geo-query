@@ -1,21 +1,21 @@
 import typing as t
 
+from interface import CInput, CIndexVector, CGeoQuery
 import numpy as np
-import BoostGeoQueryPythonInterface as Interface
 
 from .geometry import Geometry
 
 
 class QueryResult:
     def __init__(
-            self,
-            results: np.ndarray,
-            row_ptr: t.Optional[np.ndarray] = None,
-            distances: t.Optional[np.ndarray] = None,
+        self,
+        results: np.ndarray,
+        row_ptr: t.Optional[np.ndarray] = None,
+        distances: t.Optional[np.ndarray] = None,
     ) -> None:
         self.results: np.ndarray = results
         self.row_ptr: t.Optional[np.ndarray] = row_ptr
-        self.dist: t.Optional[np.ndarray] = distances
+        self.distances: t.Optional[np.ndarray] = distances
 
     def iterate(self) -> t.Iterator[np.ndarray]:
         if self.row_ptr is None:
@@ -32,14 +32,16 @@ class QueryResult:
 
 
 class GeoQuery:
-    _interface: t.Optional[Interface] = None
+    _interface: t.Optional[CGeoQuery] = None
 
-    def __init__(
-            self, target_geometry: Geometry
-    ) -> None:
+    def __init__(self, target_geometry: Geometry) -> None:
         self._interface = None
         if len(target_geometry) > 0:
-            self._interface = Interface(target_geometry)
+            row_ptr = CIndexVector(
+                target_geometry.row_ptr if target_geometry.csr else np.array([0], dtype=np.uint32)
+            )
+            query_input = CInput(target_geometry.points, row_ptr, target_geometry.type)
+            self._interface = CGeoQuery(query_input)
 
     def _query_is_empty(self, target_geometry: Geometry) -> bool:
         return self._interface is None or len(target_geometry) == 0
@@ -67,12 +69,17 @@ class GeoQuery:
         if self._query_is_empty(geometry):
             return self._empty_result(geometry)
 
-        results, dist = self._interface.find_nearest(geometry)
-        return QueryResult(results=results, distances=dist)
+        row_ptr = CIndexVector(
+            geometry.row_ptr if geometry.csr else np.array([0], dtype=np.uint32)
+        )
+        query_input = CInput(geometry.points, row_ptr, geometry.type)
 
-    def within_distance_of(
-            self, geometry: Geometry, distance: float
-    ) -> QueryResult:
+        distance_result = self._interface.nearest_to(query_input)
+        return QueryResult(
+            results=distance_result.results(), distances=distance_result.distances()
+        )
+
+    def within_distance_of(self, geometry: Geometry, distance: float) -> QueryResult:
         if self._query_is_empty(geometry):
             return self._empty_result(geometry)
 

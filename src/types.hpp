@@ -1,5 +1,8 @@
 #pragma once
 
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/index/rtree.hpp>
@@ -8,19 +11,22 @@
 
 namespace boost_geo_query
 {
+     namespace py = pybind11;
 
+     using Location = double;
      namespace bg = boost::geometry;
      namespace bgi = bg::index;
      namespace bgm = bg::model;
-     using Point = bgm::d2::point_xy<float, bg::cs::cartesian>;
+     using Point = bgm::d2::point_xy<Location, bg::cs::cartesian>;
      using Box = bgm::box<Point>;
      using LineString = bgm::linestring<Point>;
      using OpenPolygon = bgm::polygon<Point, false, false>;  // ccw, open polygon
      using ClosedPolygon = bgm::polygon<Point, false, true>; // ccw, closed polygon
 
 #define Vector std::vector
-     using Index = uint64_t;
-     using Distance = double;
+     using Distance = Location;
+     using Index = uint32_t;
+     using LocationVector = Vector<Location>;
      using PointVector = Vector<Point>;
      using IndexVector = Vector<Index>;
      using DistanceVector = Vector<Distance>;
@@ -53,12 +59,26 @@ namespace boost_geo_query
      struct IntersectingResults
      {
           IndexVector results;
-          IndexVector idxPointer;
+          IndexVector rowPtr;
      };
+
+     using InputPoints = py::array_t<double>;
 
      struct Input
      {
-          PointVector points;
+          Input() {}
+          Input(const InputPoints& p,const IndexVector& r,const std::string& t) : xy(p), rowPtr(r), type(t) {
+              // check input dimensions
+              if ( xy.ndim()     != 2 )
+                throw std::runtime_error("Input should be 2-D NumPy array");
+              if ( xy.shape()[1] != 2 &&  xy.shape()[1] != 3 )
+                throw std::runtime_error("Input should have size [N,2] or [N,3]");
+              unitSize = xy.shape()[1];
+              length = xy.shape()[0];
+           }
+        InputPoints  xy;
+        Index unitSize; // 2 or 3 [x,y] vs [x,y,z]
+        Index length;
           IndexVector rowPtr;
           std::string type;
      };

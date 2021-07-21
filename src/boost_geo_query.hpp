@@ -33,7 +33,7 @@ namespace boost_geo_query
         IntersectingResults intersects_with(const std::vector<U> &geo, bool require_full_overlap = false)
         {
             IntersectingResults ir;
-            ir.idxPointer.push_back(0);
+            ir.rowPtr.push_back(0);
 
             for (const auto &p : geo)
             {
@@ -41,7 +41,7 @@ namespace boost_geo_query
                 if (r.size() > 0)
                 {
                     ir.results.insert(ir.results.end(), r.begin(), r.end());
-                    ir.idxPointer.push_back(ir.results.size());
+                    ir.rowPtr.push_back(ir.results.size());
                 }
             }
             return ir;
@@ -85,14 +85,14 @@ namespace boost_geo_query
         }
 
         template <class U, class = GEO_TYPES<U>>
-        DistanceResult nearest_to(const U &geo)
+        DistanceResult nearest_to(const U &geo, Index initial_searchsize = -1)
         {
             // find nearest element idx + distance
             bool guaranteed_found = false;
-            Index min_i;
-            Distance min_d = boost::numeric::bounds<double>::highest();
+            Index min_i = boost::numeric::bounds<Index>::highest();
+            Distance min_d = boost::numeric::bounds<Distance>::highest();
             const Box geo_box = bg::return_envelope<Box>(geo);
-            Index nb_search_elements = rtree_node_limit;
+            Index nb_search_elements = initial_searchsize <= 0 ? rtree_node_limit : initial_searchsize;
             Index visited = 0;
 
             while (!guaranteed_found)
@@ -119,9 +119,9 @@ namespace boost_geo_query
 
                     // given || box_i - box_t || <= || i - t ||
                     // we iterate over sorted(|| box_i - box_t ||)
-                    // so if at any point we have || box_i - box_t || <= || current_found - t ||
+                    // so if at any point we have || box_i - box_t || >= || current_found - t ||
                     // then the other geometries are equal or further away and we found the nearest geometry
-                    if (bg::comparable_distance(b, geo_box) <= d)
+                    if (bg::comparable_distance(b, geo_box) >= min_d)
                     {
                         guaranteed_found = true;
                         break;
@@ -148,7 +148,7 @@ namespace boost_geo_query
         IntersectingResults within_distance_of(const std::vector<U> &geo, Distance dist)
         {
             IntersectingResults ir;
-            ir.idxPointer.push_back(0);
+            ir.rowPtr.push_back(0);
 
             for (const auto &p : geo)
             {
@@ -156,7 +156,7 @@ namespace boost_geo_query
                 if (r.size() > 0)
                 {
                     ir.results.insert(ir.results.end(), r.begin(), r.end());
-                    ir.idxPointer.push_back(ir.results.size());
+                    ir.rowPtr.push_back(ir.results.size());
                 }
             }
             return ir;
