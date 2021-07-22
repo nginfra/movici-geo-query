@@ -22,7 +22,7 @@ VERSION = read_file_or_empty_str("VERSION")
 _DEBUG = False
 _DEBUG_LEVEL = 0
 # extra_compile_args = sysconfig.get_config_var('CFLAGS').split()
-extra_compile_args = ["-Wall", "-Wextra"]
+extra_compile_args = ["-Wall", "-Wextra", "-std=c++17"]
 if _DEBUG:
     extra_compile_args += ["-g3", "-O0", "-DDEBUG=%s" % _DEBUG_LEVEL, "-UNDEBUG"]
 else:
