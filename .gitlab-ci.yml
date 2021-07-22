@@ -15,7 +15,7 @@ test:
   script:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
-    - build-wrapper-linux-x86-64 --out-dir bw_output python setup.py build_ext
+    - python setup.py build_ext
     - pip wheel --no-deps .
     - pip install *.whl
     - make test-all

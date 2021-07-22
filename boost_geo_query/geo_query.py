@@ -1,7 +1,7 @@
 import typing as t
 
-from interface import CInput, CIndexVector, CGeoQuery
 import numpy as np
+from interface import CInput, CIndexVector, CGeoQuery
 
 from .geometry import Geometry
 

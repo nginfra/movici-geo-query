@@ -40,7 +40,7 @@ class TestPointQueries:
         assert np.array_equal(rv.results, [0, 3, 2])
 
     def test_within_distance_of_points_to_points(self, some_points, other_points):
-        rv = GeoQuery(get_grid_points()).within_distance_of(get_grid_points(), 1.0)
+        rv = GeoQuery(other_points).within_distance_of(some_points, 1.0)
         assert np.array_equal(rv.results, [0, 1, 2, 3, 2])
         assert np.array_equal(rv.row_ptr, [0, 2, 4, 5])
 
