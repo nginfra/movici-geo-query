@@ -3,6 +3,7 @@ image: eu.gcr.io/movici-develop/cicd-build-env:latest
 stages:
   - test
   - build
+  - upload
 
 variables:
   KUBERNETES_MEMORY_REQUEST: 1536Mi
@@ -20,20 +21,20 @@ test:
     - pip install *.whl
     - make test-all
 
-build:py37:
+build:
   stage: build
-  image: eu.gcr.io/movici-develop/cicd-build-env-py37:latest
   artifacts:
     untracked: true
   script:
     - pip install -r requirements.txt
     - pip wheel --no-deps .
 
-build:py38:
-  stage: build
-  image: eu.gcr.io/movici-develop/cicd-build-env-py38:latest
-  artifacts:
-    untracked: true
+upload:
+  stage: upload
+  dependencies:
+    - build
+  only:
+    - master
+    - /^.*testci-.*$/
   script:
-    - pip install -r requirements.txt
-    - pip wheel --no-deps .
+    - twine upload --repository-url $PYPI_SERVER *.whl
