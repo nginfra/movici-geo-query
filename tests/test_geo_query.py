@@ -48,8 +48,3 @@ class TestPointQueries:
         rv = GeoQuery(some_lines).nearest_to(some_points)
         assert np.array_equal(rv.results, [0, 0, 1])
         assert np.allclose(rv.distances, [0, 1, np.sqrt(0.8 * 0.8 + 0.1 * 0.1)], rtol=1.0e-6)
-
-    def test_nearest_points_to_lots_of_points(self, some_points, some_lines):
-        rv = GeoQuery(some_lines).nearest_to(some_points)
-        assert np.array_equal(rv.results, [0, 0, 1])
-        assert np.allclose(rv.distances, [0, 1, np.sqrt(0.8 * 0.8 + 0.1 * 0.1)], rtol=1.0e-6)
