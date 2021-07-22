@@ -9,13 +9,13 @@ from .geometry import Geometry
 class QueryResult:
     def __init__(
         self,
-        results: np.ndarray,
+        data: np.ndarray,
         row_ptr: t.Optional[np.ndarray] = None,
         distances: t.Optional[np.ndarray] = None,
     ) -> None:
-        self.results: np.ndarray = results
-        self.row_ptr: t.Optional[np.ndarray] = row_ptr
-        self.distances: t.Optional[np.ndarray] = distances
+        self.results = np.asarray(data)
+        self.row_ptr = np.asarray(row_ptr) if row_ptr is not None else None
+        self.distances = np.asarray(distances) if row_ptr is not None else None
 
     def iterate(self) -> t.Iterator[np.ndarray]:
         if self.row_ptr is None:
@@ -57,7 +57,7 @@ class GeoQuery:
 
         intersecting_result = self._interface.overlaps_with(geometry.as_c_input())
         return QueryResult(
-            results=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
+            data=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
         )
 
     def intersects_with(self, geometry: Geometry) -> QueryResult:
@@ -66,7 +66,7 @@ class GeoQuery:
 
         intersecting_result = self._interface.intersects_with(geometry.as_c_input())
         return QueryResult(
-            results=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
+            data=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
         )
 
     def nearest_to(self, geometry: Geometry) -> QueryResult:
@@ -75,7 +75,7 @@ class GeoQuery:
 
         distance_result = self._interface.nearest_to(geometry.as_c_input())
         return QueryResult(
-            results=distance_result.results(), distances=distance_result.distances()
+            data=distance_result.results(), distances=distance_result.distances()
         )
 
     def within_distance_of(self, geometry: Geometry, distance: float) -> QueryResult:
@@ -84,7 +84,7 @@ class GeoQuery:
 
         intersecting_result = self._interface.within_distance_of(geometry.as_c_input(), distance)
         return QueryResult(
-            results=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
+            data=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
         )
 
     @staticmethod
@@ -95,7 +95,7 @@ class GeoQuery:
             row_ptr = np.zeros(0, dtype=np.int32)
 
         return QueryResult(
-            results=np.empty(0, dtype=np.int32),
+            data=np.empty(0, dtype=np.int32),
             row_ptr=row_ptr,
             distances=np.empty(0, dtype=np.float64),
         )
