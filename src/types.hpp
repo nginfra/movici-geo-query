@@ -1,17 +1,24 @@
 #pragma once
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/index/rtree.hpp>
 
 #include <vector>
 
+#ifndef NOPYBIND
+     #include <pybind11/numpy.h>
+     #include <pybind11/pybind11.h>
+#endif
+
 namespace boost_geo_query
 {
+#ifdef NOPYBIND
+     using InputPoints = std::vector<double>;
+#else
      namespace py = pybind11;
+     using InputPoints = py::array_t<double>;
+#endif
 
      using Location = double;
      namespace bg = boost::geometry;
@@ -62,13 +69,14 @@ namespace boost_geo_query
           IndexVector rowPtr;
      };
 
-     using InputPoints = py::array_t<double>;
-
      struct Input
      {
-          Input() {}
           Input(const InputPoints &p, const IndexVector &r, const std::string &t) : xy(p), rowPtr(r), type(t)
           {
+#ifdef NOPYBIND
+               unitSize = 2;
+               length = xy.size()/2;
+#else
                // check input dimensions
                if (xy.ndim() != 2)
                     throw std::runtime_error("Input should be 2-D NumPy array");
@@ -76,6 +84,7 @@ namespace boost_geo_query
                     throw std::runtime_error("Input should have size [N,2] or [N,3]");
                unitSize = xy.shape()[1];
                length = xy.shape()[0];
+#endif
           }
           InputPoints xy;
           Index unitSize; // 2 or 3 [x,y] vs [x,y,z]

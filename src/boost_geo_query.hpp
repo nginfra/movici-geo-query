@@ -41,8 +41,8 @@ namespace boost_geo_query
                 if (r.size() > 0)
                 {
                     ir.results.insert(ir.results.end(), r.begin(), r.end());
-                    ir.rowPtr.push_back(ir.results.size());
                 }
+                ir.rowPtr.push_back(ir.results.size());
             }
             return ir;
         }
@@ -85,7 +85,7 @@ namespace boost_geo_query
         }
 
         template <class U, class = GEO_TYPES<U>>
-        DistanceResult nearest_to(const U &geo, Index initial_searchsize = -1)
+        DistanceResult nearest_to(const U &geo, int64_t initial_searchsize = -1)
         {
             // find nearest element idx + distance
             bool guaranteed_found = false;
@@ -156,8 +156,8 @@ namespace boost_geo_query
                 if (r.size() > 0)
                 {
                     ir.results.insert(ir.results.end(), r.begin(), r.end());
-                    ir.rowPtr.push_back(ir.results.size());
                 }
+                ir.rowPtr.push_back(ir.results.size());
             }
             return ir;
         }
@@ -172,6 +172,7 @@ namespace boost_geo_query
             Point radius_box_min_point(b.min_corner().x() - dist, b.min_corner().y() - dist);
             Point radius_box_max_point(b.max_corner().x() + dist, b.max_corner().y() + dist);
             const Box b_radius = Box(radius_box_min_point, radius_box_max_point);
+
             // lookup bigger box to find candidates
             RTreeLookupVector results;
             _rTree.query(bgi::intersects(b_radius), std::back_inserter(results));

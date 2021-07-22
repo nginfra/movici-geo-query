@@ -1,7 +1,8 @@
+import typing as t
 from abc import abstractmethod
 
 import numpy as np
-import typing as t
+from interface import CInput, CIndexVector
 
 
 class Geometry:
@@ -11,8 +12,8 @@ class Geometry:
     csr: bool = True
 
     def __init__(self, points, row_ptr=None):
-        self.points = np.array(points)
-        self.row_ptr = row_ptr
+        self.points = np.asarray(points)
+        self.row_ptr = np.asarray(row_ptr) if row_ptr is not None else None
 
         self._verify()
 
@@ -26,6 +27,10 @@ class Geometry:
     @abstractmethod
     def _verify(self):
         raise NotImplementedError
+
+    def as_c_input(self) -> CInput:
+        row_ptr = CIndexVector(self.row_ptr if self.csr else np.array([0], dtype=np.uint32))
+        return CInput(self.points, row_ptr, self.type)
 
 
 class PointGeometry(Geometry):

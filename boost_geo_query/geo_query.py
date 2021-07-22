@@ -55,26 +55,25 @@ class GeoQuery:
         if self._query_is_empty(geometry):
             return self._empty_result(geometry)
 
-        results, row_ptr = self._interface.find_overlapping(geometry)
-        return QueryResult(results=results, row_ptr=row_ptr)
+        intersecting_result = self._interface.overlaps_with(geometry.as_c_input())
+        return QueryResult(
+            results=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
+        )
 
-    def intersect_with(self, geometry: Geometry) -> QueryResult:
+    def intersects_with(self, geometry: Geometry) -> QueryResult:
         if self._query_is_empty(geometry):
             return self._empty_result(geometry)
 
-        results, row_ptr = self._interface.find_intersecting(geometry)
-        return QueryResult(results=results, row_ptr=row_ptr)
+        intersecting_result = self._interface.intersects_with(geometry.as_c_input())
+        return QueryResult(
+            results=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
+        )
 
     def nearest_to(self, geometry: Geometry) -> QueryResult:
         if self._query_is_empty(geometry):
             return self._empty_result(geometry)
 
-        row_ptr = CIndexVector(
-            geometry.row_ptr if geometry.csr else np.array([0], dtype=np.uint32)
-        )
-        query_input = CInput(geometry.points, row_ptr, geometry.type)
-
-        distance_result = self._interface.nearest_to(query_input)
+        distance_result = self._interface.nearest_to(geometry.as_c_input())
         return QueryResult(
             results=distance_result.results(), distances=distance_result.distances()
         )
@@ -83,8 +82,10 @@ class GeoQuery:
         if self._query_is_empty(geometry):
             return self._empty_result(geometry)
 
-        results, row_ptr = self._interface.find_in_radius(geometry, distance)
-        return QueryResult(results=results, row_ptr=row_ptr)
+        intersecting_result = self._interface.within_distance_of(geometry.as_c_input(), distance)
+        return QueryResult(
+            results=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
+        )
 
     @staticmethod
     def _empty_result(target_geometry: Geometry) -> QueryResult:

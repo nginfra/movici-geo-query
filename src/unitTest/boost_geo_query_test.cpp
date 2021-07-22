@@ -44,7 +44,7 @@ namespace boost_geo_query
                     REQUIRE(ir.results == expected);
                 }
 
-                THEN("intersecting.idxPointer == (0,4)")
+                THEN("intersecting.rowPtr == (0,4)")
                 {
                     IndexVector expected = {0, 4};
                     REQUIRE(ir.rowPtr == expected);
@@ -62,9 +62,9 @@ namespace boost_geo_query
                     REQUIRE(ir.results == expected);
                 }
 
-                THEN("intersecting.idxPointer == (0)")
+                THEN("intersecting.rowPtr == (0, 0)")
                 {
-                    IndexVector expected = {0};
+                    IndexVector expected = {0, 0};
                     REQUIRE(ir.rowPtr == expected);
                 }
             }
@@ -175,7 +175,7 @@ namespace boost_geo_query
                     REQUIRE(ir.results == expected);
                 }
 
-                THEN("intersecting.idxPointer == (0, 1)")
+                THEN("intersecting.rowPtr == (0, 1)")
                 {
                     IndexVector expected = {0, 1};
                     REQUIRE(ir.rowPtr == expected);
@@ -194,7 +194,7 @@ namespace boost_geo_query
                     REQUIRE(ir.results == expected);
                 }
 
-                THEN("intersecting.idxPointer == (0, 5)")
+                THEN("intersecting.rowPtr == (0, 5)")
                 {
                     IndexVector expected = {0, 5};
                     REQUIRE(ir.rowPtr == expected);
@@ -202,7 +202,6 @@ namespace boost_geo_query
             }
         }
     }
-
 
     SCENARIO("Searching for nearest points to some other points")
     {
@@ -247,5 +246,98 @@ namespace boost_geo_query
         }
     }
 
+    SCENARIO("Searching for points in multiple polygons")
+    {
+        GIVEN("A set of points and polygons, some without hits")
+        {
+            PointVector points;
+
+            for (double y = 0.0; y <= 4.0; y++)
+            {
+                for (double x = 0.0; x <= 4.0; x++)
+                {
+                    Point p = Point(x, y);
+                    Box b;
+                    boost::geometry::envelope(p, b);
+                    points.push_back(p);
+                }
+            }
+
+            ClosedPolygonVector pv;
+            for (double y = 0.0; y <= 20.0; y = y + 10)
+            {
+                for (double x = 0.0; x <= 20.0; x = x + 10)
+                {
+                    ClosedPolygon p;
+                    p.outer().push_back(Point(x, y));
+                    p.outer().push_back(Point(x + 1, y));
+                    p.outer().push_back(Point(x + 1, y + 1));
+                    p.outer().push_back(Point(x, y + 1));
+                    p.outer().push_back(Point(x, y));
+                    pv.push_back(p);
+                }
+            }
+
+            WHEN("Intersecting is called for the polygons")
+            {
+                RTreeGeometryQuery<Point> query(points);
+                IntersectingResults ir = query.intersects_with(pv);
+
+                THEN("Only the first one should have hits: intersecting.results == (0, 1, 5, 6)")
+                {
+                    IndexVector expected = {0, 1, 5, 6};
+                    REQUIRE(ir.results == expected);
+                }
+
+                THEN("Only the first one should have hits: intersecting.rowPtr == (0,4,4,4,4,4,4,4,4,4)")
+                {
+                    IndexVector expected = {0, 4, 4, 4, 4, 4, 4, 4, 4, 4};
+                    REQUIRE(ir.rowPtr == expected);
+                }
+            }
+        }
+    }
+
+    SCENARIO("Searching for points in radius of some other points")
+    {
+        GIVEN("A set of points and some other points")
+        {
+            PointVector points;
+
+            for (double y = 0.0; y <= 4.0; y++)
+            {
+                for (double x = 0.0; x <= 4.0; x++)
+                {
+                    Point p = Point(x, y);
+                    Box b;
+                    boost::geometry::envelope(p, b);
+                    points.push_back(p);
+                }
+            }
+
+            PointVector pv;
+            pv.push_back(Point(10.0, 10.0));
+            pv.push_back(Point(1.5, 1.5));
+            pv.push_back(Point(1.0, 1.0));
+
+            WHEN("within_distance_of(0.8) is called for the points")
+            {
+                RTreeGeometryQuery<Point> query(points);
+                IntersectingResults ir = query.within_distance_of(pv, 0.8);
+
+                THEN("nearest.results == (6, 7, 11, 12, 6)")
+                {
+                    IndexVector expected = {6, 7, 11, 12, 6};
+                    REQUIRE(ir.results == expected);
+                }
+
+                THEN("intersecting.rowPtr == (0, 0, 4, 5)")
+                {
+                    IndexVector expected = {0, 0, 4, 5};
+                    REQUIRE(ir.rowPtr == expected);
+                }
+            }
+        }
+    }
 
 }

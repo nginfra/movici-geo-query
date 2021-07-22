@@ -11,7 +11,7 @@ find_package(Boost 1.76.0 REQUIRED
 
 include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}) 
 # link_libraries(${Boost_LIBRARIES})
-add_subdirectory(pybind11)
+
 
 if (WIN32)
   add_definitions( -DBOOST_ALL_NO_LIB )
@@ -25,7 +25,15 @@ set(SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/unitTest/test_main.cpp
 )
 
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g -Wall")
-# set(CMAKE_CXX_FLAGS  "-O2 -Wall")
-# add_library(test ${SOURCES})
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g -Wall -DNOPYBIND")
+# set(CMAKE_CXX_FLAGS  "-O2 -Wall -DNOPYBIND")
+
 add_executable(test ${SOURCES})
+
+
+
+# -- OPTIONALLY build with pybind11 : remove -DNOPYBIND from CXX_FLAGS --
+
+# set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g -Wall")
+# find_package(pybind11 CONFIG)
+# pybind11_add_module(test ${SOURCES})

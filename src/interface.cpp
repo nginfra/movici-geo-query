@@ -18,7 +18,10 @@ PYBIND11_MODULE(interface, m)
 
     py::class_<boost_geo_query::PythonGeoQuery>(m, "CGeoQuery")
         .def(py::init<const boost_geo_query::Input &>())
-        .def("nearest_to", &boost_geo_query::PythonGeoQuery::nearest_to);
+        .def("nearest_to", &boost_geo_query::PythonGeoQuery::nearest_to)
+        .def("intersects_with", &boost_geo_query::PythonGeoQuery::intersects_with)
+        .def("overlaps_with", &boost_geo_query::PythonGeoQuery::overlaps_with)
+        .def("within_distance_of", &boost_geo_query::PythonGeoQuery::within_distance_of);
 
     py::class_<boost_geo_query::Input>(m, "CInput")
         .def(py::init<
@@ -32,4 +35,11 @@ PYBIND11_MODULE(interface, m)
              { return dr.results; })
         .def("distances", [](const boost_geo_query::DistanceResults &dr)
              { return dr.distances; });
+
+    // todo maybe return as nparray?
+    py::class_<boost_geo_query::IntersectingResults>(m, "CIntersectingResults")
+        .def("results", [](const boost_geo_query::IntersectingResults &ir)
+             { return ir.results; })
+        .def("row_ptr", [](const boost_geo_query::IntersectingResults &ir)
+             { return ir.rowPtr; });
 }
