@@ -38,7 +38,7 @@ ext_modules = [
 ]
 
 setup(
-    name="boost_geo_query",
+    name="boost-geo-query",
     version=VERSION,
     description="Boost geospatial queries in C++",
     long_description=README,
