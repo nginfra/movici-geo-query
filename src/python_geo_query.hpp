@@ -11,10 +11,10 @@ namespace boost_geo_query
         GeoQueryWrapperBase() = default;
         virtual ~GeoQueryWrapperBase() = default;
 
-        virtual DistanceResults nearest_to(const Input &i) = 0;
-        virtual IntersectingResults intersects_with(const Input &i) = 0;
-        virtual IntersectingResults overlaps_with(const Input &i) = 0;
-        virtual IntersectingResults within_distance_of(const Input &i, Distance d) = 0;
+        virtual QueryResults nearest_to(const Input &i) = 0;
+        virtual QueryResults intersects_with(const Input &i) = 0;
+        virtual QueryResults overlaps_with(const Input &i) = 0;
+        virtual QueryResults within_distance_of(const Input &i, Distance d) = 0;
     };
 
     template <class T, class = GEO_TYPES<T>>
@@ -28,7 +28,7 @@ namespace boost_geo_query
         }
 
         // Given unknown type, we need to figure out type and call convert<T> and function<T>
-        DistanceResults nearest_to(const Input &input)
+        QueryResults nearest_to(const Input &input)
         {
             if (input.type == accepted_input_types::point)
             {
@@ -52,7 +52,7 @@ namespace boost_geo_query
             }
         }
 
-        IntersectingResults intersects_with(const Input &input)
+        QueryResults intersects_with(const Input &input)
         {
             if (input.type == accepted_input_types::point)
             {
@@ -76,7 +76,7 @@ namespace boost_geo_query
             }
         }
 
-        IntersectingResults overlaps_with(const Input &input)
+        QueryResults overlaps_with(const Input &input)
         {
             if (input.type == accepted_input_types::point)
             {
@@ -100,7 +100,7 @@ namespace boost_geo_query
             }
         }
 
-        IntersectingResults within_distance_of(const Input &input, Distance d)
+        QueryResults within_distance_of(const Input &input, Distance d)
         {
             if (input.type == accepted_input_types::point)
             {
@@ -173,10 +173,10 @@ namespace boost_geo_query
         PythonGeoQuery(const Input &input);
         ~PythonGeoQuery() {}
 
-        DistanceResults nearest_to(const Input &i) { return _query->nearest_to(i); }
-        IntersectingResults intersects_with(const Input &i) { return _query->intersects_with(i); }
-        IntersectingResults overlaps_with(const Input &i) { return _query->overlaps_with(i); }
-        IntersectingResults within_distance_of(const Input &i, Distance d) { return _query->within_distance_of(i, d); }
+        QueryResults nearest_to(const Input &i) { return _query->nearest_to(i); }
+        QueryResults intersects_with(const Input &i) { return _query->intersects_with(i); }
+        QueryResults overlaps_with(const Input &i) { return _query->overlaps_with(i); }
+        QueryResults within_distance_of(const Input &i, Distance d) { return _query->within_distance_of(i, d); }
 
     private:
         std::unique_ptr<GeoQueryWrapperBase> _query;

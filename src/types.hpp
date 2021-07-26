@@ -11,16 +11,17 @@
      #include <pybind11/pybind11.h>
 #endif
 
+
 namespace boost_geo_query
 {
+     using Location = double;
 #ifdef NOPYBIND
-     using InputPoints = std::vector<double>;
+     using InputPoints = std::vector<Location>;
 #else
      namespace py = pybind11;
-     using InputPoints = py::array_t<double>;
+     using InputPoints = py::array_t<Location>;
 #endif
 
-     using Location = double;
      namespace bg = boost::geometry;
      namespace bgi = bg::index;
      namespace bgm = bg::model;
@@ -53,27 +54,30 @@ namespace boost_geo_query
 
      struct DistanceResult
      {
-          Index result;
+          Index index;
           Distance distance;
      };
 
-     struct DistanceResults
+     struct QueryResults
      {
-          IndexVector results;
-          DistanceVector distances;
-     };
-
-     struct IntersectingResults
-     {
-          IndexVector results;
+          IndexVector indices;
           IndexVector rowPtr;
+          DistanceVector distances;
      };
 
      struct Input
      {
+          InputPoints xy;
+//          InputPoints * xy;
+          Index unitSize; // 2 or 3 [x,y] vs [x,y,z]
+          Index length;
+          IndexVector rowPtr;
+          std::string type;
+
           Input(const InputPoints &p, const IndexVector &r, const std::string &t) : xy(p), rowPtr(r), type(t)
           {
 #ifdef NOPYBIND
+               // assume 2D arrays
                unitSize = 2;
                length = xy.size()/2;
 #else
@@ -86,11 +90,7 @@ namespace boost_geo_query
                length = xy.shape()[0];
 #endif
           }
-          InputPoints xy;
-          Index unitSize; // 2 or 3 [x,y] vs [x,y,z]
-          Index length;
-          IndexVector rowPtr;
-          std::string type;
+
      };
 
      namespace accepted_input_types

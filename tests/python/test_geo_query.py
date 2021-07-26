@@ -32,19 +32,19 @@ def some_lines():
 class TestPointQueries:
     def test_nearest_points_to_points(self, some_points, other_points):
         rv = GeoQuery(some_points).nearest_to(other_points)
-        assert np.array_equal(rv.results, [0, 0, 2, 1])
+        assert np.array_equal(rv.indices, [0, 0, 2, 1])
         assert np.allclose(rv.distances, [np.sqrt(2) / 10, 0.2, 0, np.sqrt(2) / 10], rtol=1.0e-6)
 
     def test_nearest_points_to_points_reverse(self, some_points, other_points):
         rv = GeoQuery(other_points).nearest_to(some_points)
-        assert np.array_equal(rv.results, [0, 3, 2])
+        assert np.array_equal(rv.indices, [0, 3, 2])
 
     def test_within_distance_of_points_to_points(self, some_points, other_points):
         rv = GeoQuery(other_points).within_distance_of(some_points, 1.0)
-        assert np.array_equal(rv.results, [0, 1, 2, 3, 2])
+        assert np.array_equal(rv.indices, [0, 1, 2, 3, 2])
         assert np.array_equal(rv.row_ptr, [0, 2, 4, 5])
 
     def test_nearest_lines_to_points(self, some_points, some_lines):
         rv = GeoQuery(some_lines).nearest_to(some_points)
-        assert np.array_equal(rv.results, [0, 0, 1])
+        assert np.array_equal(rv.indices, [0, 0, 1])
         assert np.allclose(rv.distances, [0, 1, np.sqrt(0.8 * 0.8 + 0.1 * 0.1)], rtol=1.0e-6)

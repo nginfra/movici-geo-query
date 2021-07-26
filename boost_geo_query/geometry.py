@@ -20,9 +20,7 @@ class Geometry:
     def __len__(self):
         if not self.csr:
             return self.points.shape[0]
-        if self.row_ptr.size > 1:
-            return self.row_ptr.size - 1
-        return 0
+        return self.row_ptr.size - 1
 
     @abstractmethod
     def _verify(self):

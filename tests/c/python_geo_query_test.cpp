@@ -1,5 +1,5 @@
 #include <types.hpp>
-#include <unitTest/catch.hpp>
+#include <catch.hpp>
 #include <python_geo_query.hpp>
 
 namespace boost_geo_query
@@ -38,18 +38,18 @@ namespace boost_geo_query
             {
                 PythonGeoQuery query(input);
                 Input input2{pv, IndexVector(), "point"};
-                DistanceResults dr = query.nearest_to(input2);
+                QueryResults qr = query.nearest_to(input2);
 
-                THEN("nearest.results == (6, 8)")
+                THEN("nearest.indices == (6, 8)")
                 {
                     IndexVector expected = {6, 8};
-                    REQUIRE(dr.results == expected);
+                    REQUIRE(qr.indices == expected);
                 }
 
                 THEN("nearest.distance == (sqrt(2 * 0.2 * 0.2), 0.4)")
                 {
-                    REQUIRE(abs(dr.distances[0] - sqrt(2 * 0.2 * 0.2)) < (1.0e-6));
-                    REQUIRE(abs(dr.distances[1] - 0.4) < (1.0e-6));
+                    REQUIRE(abs(qr.distances[0] - sqrt(2 * 0.2 * 0.2)) < (1.0e-6));
+                    REQUIRE(abs(qr.distances[1] - 0.4) < (1.0e-6));
                 }
             }
         }
@@ -97,18 +97,18 @@ namespace boost_geo_query
             {
                 PythonGeoQuery query(input);
                 Input input2{polygon, IndexVector({0, 5}), "closed_polygon"};
-                DistanceResults dr = query.nearest_to(input2);
+                QueryResults qr = query.nearest_to(input2);
 
-                THEN("nearest.results == (6)")
+                THEN("nearest.indices == (6)")
                 {
                     IndexVector expected = {6};
-                    REQUIRE(dr.results == expected);
+                    REQUIRE(qr.indices == expected);
                 }
 
                 THEN("nearest.distance == (sqrt(2 * 0.2 * 0.2))")
                 {
                     Distance expected = sqrt(2 * 0.2 * 0.2);
-                    REQUIRE(abs(dr.distances[0] - expected) < (1.0e-6));
+                    REQUIRE(abs(qr.distances[0] - expected) < (1.0e-6));
                 }
             }
         }
