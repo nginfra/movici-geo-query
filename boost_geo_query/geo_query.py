@@ -49,14 +49,13 @@ NEAREST = 2
 INTERSECTS = 3
 DISTANCE = 4
 
+
 class GeoQuery:
     _interface: t.Optional[CGeoQuery] = None
 
     def __init__(self, target_geometry: Geometry) -> None:
         self._interface = (
-            CGeoQuery(*target_geometry.as_c_input())
-            if len(target_geometry) != 0
-            else None
+            CGeoQuery(*target_geometry.as_c_input()) if len(target_geometry) != 0 else None
         )
 
     def overlaps_with(self, geometry: Geometry) -> QueryResult:
