@@ -67,27 +67,26 @@ namespace boost_geo_query
 
      struct Input
      {
-          InputPoints xy;
-//          InputPoints * xy;
+          InputPoints const* const xy;
           Index unitSize; // 2 or 3 [x,y] vs [x,y,z]
           Index length;
           IndexVector rowPtr;
           std::string type;
-
-          Input(const InputPoints &p, const IndexVector &r, const std::string &t) : xy(p), rowPtr(r), type(t)
+          Input():xy(NULL) {}
+          Input(const InputPoints &p, const IndexVector &r, const std::string &t) : xy(&p), rowPtr(r), type(t)
           {
 #ifdef NOPYBIND
                // assume 2D arrays
                unitSize = 2;
-               length = xy.size()/2;
+               length = xy->size()/2;
 #else
                // check input dimensions
-               if (xy.ndim() != 2)
+               if (xy->ndim() != 2)
                     throw std::runtime_error("Input should be 2-D NumPy array");
-               if (xy.shape()[1] != 2 && xy.shape()[1] != 3)
+               if (xy->shape()[1] != 2 && xy->shape()[1] != 3)
                     throw std::runtime_error("Input should have size [N,2] or [N,3]");
-               unitSize = xy.shape()[1];
-               length = xy.shape()[0];
+               unitSize = xy->shape()[1];
+               length = xy->shape()[0];
 #endif
           }
 

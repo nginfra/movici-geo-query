@@ -130,7 +130,7 @@ namespace boost_geo_query
         template <class U, class = GEO_TYPES<U>>
         std::vector<U> _convert_geometry_for_query(const Input &input)
         {
-            auto data = input.xy.data();
+            auto data = input.xy->data();
             std::vector<U> rv;
             if constexpr (std::is_same_v<U, Point>)
             {
