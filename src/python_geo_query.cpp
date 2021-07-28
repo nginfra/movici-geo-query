@@ -4,27 +4,27 @@
 namespace boost_geo_query
 {
 
-    PythonGeoQuery::PythonGeoQuery(const Input &input)
+    PythonGeoQuery::PythonGeoQuery(const InputPoints &xy, const IndexVector &rowPtr, const std::string &type)
     {
-        if (input.type == accepted_input_types::point)
+        if (type == accepted_input_types::point)
         {
-            _query = std::make_unique<BoostGeoQueryWrapper<Point>>(input);
+            _query = std::make_unique<BoostGeoQueryWrapper<Point>>(xy, rowPtr);
         }
-        else if (input.type == accepted_input_types::linestring)
+        else if (type == accepted_input_types::linestring)
         {
-            _query = std::make_unique<BoostGeoQueryWrapper<LineString>>(input);
+            _query = std::make_unique<BoostGeoQueryWrapper<LineString>>(xy, rowPtr);
         }
-        else if (input.type == accepted_input_types::openPolygon)
+        else if (type == accepted_input_types::openPolygon)
         {
-            _query = std::make_unique<BoostGeoQueryWrapper<OpenPolygon>>(input);
+            _query = std::make_unique<BoostGeoQueryWrapper<OpenPolygon>>(xy, rowPtr);
         }
-        else if (input.type == accepted_input_types::closedPolygon)
+        else if (type == accepted_input_types::closedPolygon)
         {
-            _query = std::make_unique<BoostGeoQueryWrapper<ClosedPolygon>>(input);
+            _query = std::make_unique<BoostGeoQueryWrapper<ClosedPolygon>>(xy, rowPtr);
         }
         else
         {
-            throw std::invalid_argument("Input type unknown. Choose from " + accepted_input_types::point + ", " + accepted_input_types::linestring + ", " + accepted_input_types::openPolygon + " and " + accepted_input_types::closedPolygon + ".");
+            throw std::invalid_argument("Input type: " + type + " unknown. Choose from " + accepted_input_types::point + ", " + accepted_input_types::linestring + ", " + accepted_input_types::openPolygon + " and " + accepted_input_types::closedPolygon + ".");
         }
     }
 

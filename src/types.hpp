@@ -65,33 +65,6 @@ namespace boost_geo_query
           DistanceVector distances;
      };
 
-     struct Input
-     {
-          InputPoints const* const xy;
-          Index unitSize; // 2 or 3 [x,y] vs [x,y,z]
-          Index length;
-          IndexVector rowPtr;
-          std::string type;
-          Input():xy(NULL) {}
-          Input(const InputPoints &p, const IndexVector &r, const std::string &t) : xy(&p), rowPtr(r), type(t)
-          {
-#ifdef NOPYBIND
-               // assume 2D arrays
-               unitSize = 2;
-               length = xy->size()/2;
-#else
-               // check input dimensions
-               if (xy->ndim() != 2)
-                    throw std::runtime_error("Input should be 2-D NumPy array");
-               if (xy->shape()[1] != 2 && xy->shape()[1] != 3)
-                    throw std::runtime_error("Input should have size [N,2] or [N,3]");
-               unitSize = xy->shape()[1];
-               length = xy->shape()[0];
-#endif
-          }
-
-     };
-
      namespace accepted_input_types
      {
           const std::string point = "point";
