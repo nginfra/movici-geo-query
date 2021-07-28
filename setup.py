@@ -9,7 +9,9 @@ def read_file_or_empty_str(file, comment_tag=None):
         with open(file) as fh:
             if comment_tag is not None:
                 return "\n".join(
-                    r.strip("\n") for r in fh.readlines() if not r.startswith(comment_tag)
+                    r.strip("\n")
+                    for r in fh.readlines()
+                    if not r.startswith(comment_tag)
                 )
             return fh.read()
     except FileNotFoundError:
@@ -19,7 +21,7 @@ def read_file_or_empty_str(file, comment_tag=None):
 REQUIREMENTS = read_file_or_empty_str("requirements.txt")
 README = read_file_or_empty_str("README.md")
 LICENSE = read_file_or_empty_str("LICENSE")
-VERSION = read_file_or_empty_str("VERSION", comment_tag='#')
+VERSION = read_file_or_empty_str("VERSION", comment_tag="#")
 CURRENT_DIR = Path(__file__).parent
 SRC_DIR = CURRENT_DIR / "src"
 _DEBUG = False
