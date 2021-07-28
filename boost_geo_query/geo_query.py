@@ -13,7 +13,7 @@ class QueryResult:
         row_ptr: t.Optional[np.ndarray] = None,
         distances: t.Optional[np.ndarray] = None,
     ) -> None:
-        self.indices = np.asarray(indices, dtype=np.float64)
+        self.indices = np.asarray(indices, dtype=np.uint32)
         self.row_ptr = np.asarray(row_ptr, dtype=np.uint32) if row_ptr is not None else None
         self.distances = np.asarray(distances, dtype=np.float64) if distances is not None else None
 

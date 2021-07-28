@@ -11,10 +11,10 @@ namespace boost_geo_query
         GeoQueryWrapperBase() = default;
         virtual ~GeoQueryWrapperBase() = default;
 
-        virtual QueryResults nearest_to(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type) = 0;
-        virtual QueryResults intersects_with(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type) = 0;
-        virtual QueryResults overlaps_with(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type) = 0;
-        virtual QueryResults within_distance_of(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type, Distance d) = 0;
+        virtual QueryResults nearest_to(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) = 0;
+        virtual QueryResults intersects_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) = 0;
+        virtual QueryResults overlaps_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) = 0;
+        virtual QueryResults within_distance_of(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type, Distance d) = 0;
     };
 
     template <class T, class = GEO_TYPES<T>>
@@ -22,13 +22,13 @@ namespace boost_geo_query
     {
     public:
         using TargetVector = std::vector<T>;
-        BoostGeoQueryWrapper(const InputPoints &xy, const InputIndex &rowPtr)
+        BoostGeoQueryWrapper(const LocationArray &xy, const IndexArray &rowPtr)
         {
             _boostQuery = RTreeGeometryQuery<T>(_convert_geometry_for_query<T>(xy, rowPtr));
         }
 
         // Given unknown type, we need to figure out type and call convert<T> and function<T>
-        QueryResults nearest_to(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type)
+        QueryResults nearest_to(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type)
         {
             if (type == accepted_input_types::point)
             {
@@ -52,7 +52,7 @@ namespace boost_geo_query
             }
         }
 
-        QueryResults intersects_with(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type)
+        QueryResults intersects_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type)
         {
             if (type == accepted_input_types::point)
             {
@@ -76,7 +76,7 @@ namespace boost_geo_query
             }
         }
 
-        QueryResults overlaps_with(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type)
+        QueryResults overlaps_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type)
         {
             if (type == accepted_input_types::point)
             {
@@ -100,7 +100,7 @@ namespace boost_geo_query
             }
         }
 
-        QueryResults within_distance_of(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type, Distance d)
+        QueryResults within_distance_of(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type, Distance d)
         {
             if (type == accepted_input_types::point)
             {
@@ -128,7 +128,7 @@ namespace boost_geo_query
         RTreeGeometryQuery<T> _boostQuery;
 
         template <class U, class = GEO_TYPES<U>>
-        std::vector<U> _convert_geometry_for_query(const InputPoints &xy, const InputIndex &rowPtr)
+        std::vector<U> _convert_geometry_for_query(const LocationArray &xy, const IndexArray &rowPtr)
         {
 #ifdef NOPYBIND
                // assume 2D arrays
@@ -141,7 +141,7 @@ namespace boost_geo_query
                if (xy.shape()[1] != 2 && xy.shape()[1] != 3)
                     throw std::runtime_error("Input should have size [N,2] or [N,3]");
                if (rowPtr.ndim() != 1)
-                    throw std::runtime_error("InputIndex should be 1-D NumPy array");
+                    throw std::runtime_error("IndexArray should be 1-D NumPy array");
 
                Index unitSize = xy.shape()[1];
                Index length = xy.shape()[0];
@@ -187,13 +187,13 @@ namespace boost_geo_query
     class PythonGeoQuery
     {
     public:
-        PythonGeoQuery(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type);
+        PythonGeoQuery(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type);
         ~PythonGeoQuery() {}
 
-        QueryResults nearest_to(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type) { return _query->nearest_to(xy, rowPtr, type); }
-        QueryResults intersects_with(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type) { return _query->intersects_with(xy, rowPtr, type); }
-        QueryResults overlaps_with(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type) { return _query->overlaps_with(xy, rowPtr, type); }
-        QueryResults within_distance_of(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type, Distance d) { return _query->within_distance_of(xy, rowPtr, type, d); }
+        QueryResults nearest_to(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) { return _query->nearest_to(xy, rowPtr, type); }
+        QueryResults intersects_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) { return _query->intersects_with(xy, rowPtr, type); }
+        QueryResults overlaps_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) { return _query->overlaps_with(xy, rowPtr, type); }
+        QueryResults within_distance_of(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type, Distance d) { return _query->within_distance_of(xy, rowPtr, type, d); }
 
     private:
         std::unique_ptr<GeoQueryWrapperBase> _query;

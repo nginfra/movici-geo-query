@@ -19,8 +19,8 @@ PYBIND11_MODULE(interface, m)
 
     py::class_<boost_geo_query::PythonGeoQuery>(m, "CGeoQuery")
         .def(py::init<
-             py::array_t<boost_geo_query::Location, py::array::c_style | py::array::forcecast> &,
-             py::array_t<boost_geo_query::Index, py::array::c_style | py::array::forcecast> &,
+             boost_geo_query::LocationArray &,
+             boost_geo_query::IndexArray &,
              const std::string &>())
         .def("nearest_to", &boost_geo_query::PythonGeoQuery::nearest_to)
         .def("intersects_with", &boost_geo_query::PythonGeoQuery::intersects_with)

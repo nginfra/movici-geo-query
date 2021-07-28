@@ -1,24 +1,27 @@
-import os
-from glob import glob
+from pathlib import Path
 
 from pybind11.setup_helpers import Pybind11Extension
 from setuptools import setup, find_packages
 
 
-def read_file_or_empty_str(file):
+def read_file_or_empty_str(file, comment_tag=None):
     try:
-        with open(file) as f:
-            return f.read()
+        with open(file) as fh:
+            if comment_tag is not None:
+                return "\n".join(
+                    r.strip("\n") for r in fh.readlines() if not r.startswith(comment_tag)
+                )
+            return fh.read()
     except FileNotFoundError:
         return ""
 
 
-base_path = os.path.dirname(__file__)
 REQUIREMENTS = read_file_or_empty_str("requirements.txt")
 README = read_file_or_empty_str("README.md")
 LICENSE = read_file_or_empty_str("LICENSE")
-VERSION = read_file_or_empty_str("VERSION")
-
+VERSION = read_file_or_empty_str("VERSION", comment_tag='#')
+CURRENT_DIR = Path(__file__).parent
+SRC_DIR = CURRENT_DIR / "src"
 _DEBUG = False
 _DEBUG_LEVEL = 0
 # extra_compile_args = sysconfig.get_config_var('CFLAGS').split()
@@ -31,8 +34,8 @@ else:
 ext_modules = [
     Pybind11Extension(
         "interface",
-        sorted(glob("src/*.cpp")),
-        include_dirs=[os.path.join(base_path, "src")],
+        sorted(str(file) for file in SRC_DIR.glob("*.cpp")),
+        include_dirs=[str(SRC_DIR)],
         extra_compile_args=extra_compile_args,
     ),
 ]

@@ -9,7 +9,7 @@ namespace boost_geo_query
     {
         GIVEN("A set of points in a tree and some points")
         {
-            InputPoints points;
+            LocationArray points;
             RTree rtree;
 
             for (double y = 0.0; y <= 4.0; y++)
@@ -25,7 +25,7 @@ namespace boost_geo_query
                 }
             }
 
-            InputPoints pv;
+            LocationArray pv;
             pv.push_back(1.2);
             pv.push_back(1.2);
 
@@ -56,7 +56,7 @@ namespace boost_geo_query
     {
         GIVEN("A set of points in a tree and some polygon")
         {
-            InputPoints points;
+            LocationArray points;
             RTree rtree;
 
             for (double y = 0.0; y <= 4.0; y++)
@@ -72,7 +72,7 @@ namespace boost_geo_query
                 }
             }
 
-            InputPoints polygon;
+            LocationArray polygon;
             polygon.push_back(1.2);
             polygon.push_back(1.2);
 
