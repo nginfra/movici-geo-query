@@ -4,7 +4,7 @@
 namespace boost_geo_query
 {
 
-    PythonGeoQuery::PythonGeoQuery(const InputPoints &xy, const IndexVector &rowPtr, const std::string &type)
+    PythonGeoQuery::PythonGeoQuery(const InputPoints &xy, const InputIndex &rowPtr, const std::string &type)
     {
         if (type == accepted_input_types::point)
         {

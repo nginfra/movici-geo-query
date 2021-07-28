@@ -13,9 +13,9 @@ class QueryResult:
         row_ptr: t.Optional[np.ndarray] = None,
         distances: t.Optional[np.ndarray] = None,
     ) -> None:
-        self.indices = np.asarray(indices)
-        self.row_ptr = np.asarray(row_ptr) if row_ptr is not None else None
-        self.distances = np.asarray(distances) if distances is not None else None
+        self.indices = np.asarray(indices, dtype=np.float64)
+        self.row_ptr = np.asarray(row_ptr, dtype=np.uint32) if row_ptr is not None else None
+        self.distances = np.asarray(distances, dtype=np.float64) if distances is not None else None
 
     def iterate(self) -> t.Iterator[np.ndarray]:
         if self.row_ptr is None:
@@ -54,7 +54,7 @@ class GeoQuery:
 
     def __init__(self, target_geometry: Geometry) -> None:
         self._interface = (
-            CGeoQuery(target_geometry.as_c_input())
+            CGeoQuery(*target_geometry.as_c_input())
             if len(target_geometry) != 0
             else None
         )
@@ -76,18 +76,18 @@ class GeoQuery:
             return empty_result(geometry)
 
         if query_type == NEAREST:
-            distance_result = self._interface.nearest_to(geometry.as_c_input())
+            distance_result = self._interface.nearest_to(*geometry.as_c_input())
             return QueryResult(
                 indices=distance_result.indices(), distances=distance_result.distances()
             )
 
         elif query_type == OVERLAPS:
-            raw = self._interface.overlaps_with(geometry.as_c_input())
+            raw = self._interface.overlaps_with(*geometry.as_c_input())
         elif query_type == INTERSECTS:
-            raw = self._interface.intersects_with(geometry.as_c_input())
+            raw = self._interface.intersects_with(*geometry.as_c_input())
         elif query_type == DISTANCE:
             distance = kwargs.pop("distance")
-            raw = self._interface.within_distance_of(geometry.as_c_input(), distance)
+            raw = self._interface.within_distance_of(*geometry.as_c_input(), distance)
         else:
             raise ValueError(f"Undefined query type {query_type}")
         return QueryResult(indices=raw.indices(), row_ptr=raw.row_ptr())

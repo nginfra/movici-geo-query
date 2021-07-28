@@ -15,11 +15,14 @@
 namespace boost_geo_query
 {
      using Location = double;
+     using Index = uint32_t;
 #ifdef NOPYBIND
      using InputPoints = std::vector<Location>;
+     using InputIndex = std::vector<Index>;
 #else
      namespace py = pybind11;
      using InputPoints = py::array_t<Location>;
+     using InputIndex = py::array_t<Index>;
 #endif
 
      namespace bg = boost::geometry;
@@ -33,7 +36,6 @@ namespace boost_geo_query
 
 #define Vector std::vector
      using Distance = Location;
-     using Index = uint32_t;
      using LocationVector = Vector<Location>;
      using PointVector = Vector<Point>;
      using IndexVector = Vector<Index>;

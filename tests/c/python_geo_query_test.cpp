@@ -25,8 +25,6 @@ namespace boost_geo_query
                 }
             }
 
-            Input input{points, IndexVector(), "point"};
-
             InputPoints pv;
             pv.push_back(1.2);
             pv.push_back(1.2);
@@ -36,9 +34,8 @@ namespace boost_geo_query
 
             WHEN("Nearest is called for the points")
             {
-                PythonGeoQuery query(input);
-                Input input2{pv, IndexVector(), "point"};
-                QueryResults qr = query.nearest_to(input2);
+                PythonGeoQuery query(points, IndexVector(), "point");
+                QueryResults qr = query.nearest_to(pv, IndexVector(), "point");
 
                 THEN("nearest.indices == (6, 8)")
                 {
@@ -75,8 +72,6 @@ namespace boost_geo_query
                 }
             }
 
-            Input input{points, IndexVector(), "point"};
-
             InputPoints polygon;
             polygon.push_back(1.2);
             polygon.push_back(1.2);
@@ -95,9 +90,8 @@ namespace boost_geo_query
 
             WHEN("Nearest is called for a polygon")
             {
-                PythonGeoQuery query(input);
-                Input input2{polygon, IndexVector({0, 5}), "closed_polygon"};
-                QueryResults qr = query.nearest_to(input2);
+                PythonGeoQuery query(points, IndexVector(), "point");
+                QueryResults qr = query.nearest_to(polygon, IndexVector({0, 5}), "closed_polygon");
 
                 THEN("nearest.indices == (6)")
                 {
