@@ -11,10 +11,10 @@ namespace boost_geo_query
         GeoQueryWrapperBase() = default;
         virtual ~GeoQueryWrapperBase() = default;
 
-        virtual DistanceResults nearest_to(const Input &i) = 0;
-        virtual IntersectingResults intersects_with(const Input &i) = 0;
-        virtual IntersectingResults overlaps_with(const Input &i) = 0;
-        virtual IntersectingResults within_distance_of(const Input &i, Distance d) = 0;
+        virtual QueryResults nearest_to(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) = 0;
+        virtual QueryResults intersects_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) = 0;
+        virtual QueryResults overlaps_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) = 0;
+        virtual QueryResults within_distance_of(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type, Distance d) = 0;
     };
 
     template <class T, class = GEO_TYPES<T>>
@@ -22,29 +22,29 @@ namespace boost_geo_query
     {
     public:
         using TargetVector = std::vector<T>;
-        BoostGeoQueryWrapper(const Input &input)
+        BoostGeoQueryWrapper(const LocationArray &xy, const IndexArray &rowPtr)
         {
-            _boostQuery = RTreeGeometryQuery<T>(_convert_geometry_for_query<T>(input));
+            _boostQuery = RTreeGeometryQuery<T>(_convert_geometry_for_query<T>(xy, rowPtr));
         }
 
         // Given unknown type, we need to figure out type and call convert<T> and function<T>
-        DistanceResults nearest_to(const Input &input)
+        QueryResults nearest_to(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type)
         {
-            if (input.type == accepted_input_types::point)
+            if (type == accepted_input_types::point)
             {
-                return _boostQuery.nearest_to(_convert_geometry_for_query<Point>(input));
+                return _boostQuery.nearest_to(_convert_geometry_for_query<Point>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::linestring)
+            else if (type == accepted_input_types::linestring)
             {
-                return _boostQuery.nearest_to(_convert_geometry_for_query<LineString>(input));
+                return _boostQuery.nearest_to(_convert_geometry_for_query<LineString>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::openPolygon)
+            else if (type == accepted_input_types::openPolygon)
             {
-                return _boostQuery.nearest_to(_convert_geometry_for_query<OpenPolygon>(input));
+                return _boostQuery.nearest_to(_convert_geometry_for_query<OpenPolygon>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::closedPolygon)
+            else if (type == accepted_input_types::closedPolygon)
             {
-                return _boostQuery.nearest_to(_convert_geometry_for_query<ClosedPolygon>(input));
+                return _boostQuery.nearest_to(_convert_geometry_for_query<ClosedPolygon>(xy, rowPtr));
             }
             else
             {
@@ -52,23 +52,23 @@ namespace boost_geo_query
             }
         }
 
-        IntersectingResults intersects_with(const Input &input)
+        QueryResults intersects_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type)
         {
-            if (input.type == accepted_input_types::point)
+            if (type == accepted_input_types::point)
             {
-                return _boostQuery.intersects_with(_convert_geometry_for_query<Point>(input));
+                return _boostQuery.intersects_with(_convert_geometry_for_query<Point>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::linestring)
+            else if (type == accepted_input_types::linestring)
             {
-                return _boostQuery.intersects_with(_convert_geometry_for_query<LineString>(input));
+                return _boostQuery.intersects_with(_convert_geometry_for_query<LineString>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::openPolygon)
+            else if (type == accepted_input_types::openPolygon)
             {
-                return _boostQuery.intersects_with(_convert_geometry_for_query<OpenPolygon>(input));
+                return _boostQuery.intersects_with(_convert_geometry_for_query<OpenPolygon>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::closedPolygon)
+            else if (type == accepted_input_types::closedPolygon)
             {
-                return _boostQuery.intersects_with(_convert_geometry_for_query<ClosedPolygon>(input));
+                return _boostQuery.intersects_with(_convert_geometry_for_query<ClosedPolygon>(xy, rowPtr));
             }
             else
             {
@@ -76,23 +76,23 @@ namespace boost_geo_query
             }
         }
 
-        IntersectingResults overlaps_with(const Input &input)
+        QueryResults overlaps_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type)
         {
-            if (input.type == accepted_input_types::point)
+            if (type == accepted_input_types::point)
             {
-                return _boostQuery.overlaps_with(_convert_geometry_for_query<Point>(input));
+                return _boostQuery.overlaps_with(_convert_geometry_for_query<Point>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::linestring)
+            else if (type == accepted_input_types::linestring)
             {
-                return _boostQuery.overlaps_with(_convert_geometry_for_query<LineString>(input));
+                return _boostQuery.overlaps_with(_convert_geometry_for_query<LineString>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::openPolygon)
+            else if (type == accepted_input_types::openPolygon)
             {
-                return _boostQuery.overlaps_with(_convert_geometry_for_query<OpenPolygon>(input));
+                return _boostQuery.overlaps_with(_convert_geometry_for_query<OpenPolygon>(xy, rowPtr));
             }
-            else if (input.type == accepted_input_types::closedPolygon)
+            else if (type == accepted_input_types::closedPolygon)
             {
-                return _boostQuery.overlaps_with(_convert_geometry_for_query<ClosedPolygon>(input));
+                return _boostQuery.overlaps_with(_convert_geometry_for_query<ClosedPolygon>(xy, rowPtr));
             }
             else
             {
@@ -100,23 +100,23 @@ namespace boost_geo_query
             }
         }
 
-        IntersectingResults within_distance_of(const Input &input, Distance d)
+        QueryResults within_distance_of(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type, Distance d)
         {
-            if (input.type == accepted_input_types::point)
+            if (type == accepted_input_types::point)
             {
-                return _boostQuery.within_distance_of(_convert_geometry_for_query<Point>(input), d);
+                return _boostQuery.within_distance_of(_convert_geometry_for_query<Point>(xy, rowPtr), d);
             }
-            else if (input.type == accepted_input_types::linestring)
+            else if (type == accepted_input_types::linestring)
             {
-                return _boostQuery.within_distance_of(_convert_geometry_for_query<LineString>(input), d);
+                return _boostQuery.within_distance_of(_convert_geometry_for_query<LineString>(xy, rowPtr), d);
             }
-            else if (input.type == accepted_input_types::openPolygon)
+            else if (type == accepted_input_types::openPolygon)
             {
-                return _boostQuery.within_distance_of(_convert_geometry_for_query<OpenPolygon>(input), d);
+                return _boostQuery.within_distance_of(_convert_geometry_for_query<OpenPolygon>(xy, rowPtr), d);
             }
-            else if (input.type == accepted_input_types::closedPolygon)
+            else if (type == accepted_input_types::closedPolygon)
             {
-                return _boostQuery.within_distance_of(_convert_geometry_for_query<ClosedPolygon>(input), d);
+                return _boostQuery.within_distance_of(_convert_geometry_for_query<ClosedPolygon>(xy, rowPtr), d);
             }
             else
             {
@@ -128,37 +128,54 @@ namespace boost_geo_query
         RTreeGeometryQuery<T> _boostQuery;
 
         template <class U, class = GEO_TYPES<U>>
-        std::vector<U> _convert_geometry_for_query(const Input &input)
+        std::vector<U> _convert_geometry_for_query(const LocationArray &xy, const IndexArray &rowPtr)
         {
-            auto data = input.xy.data();
+#ifdef NOPYBIND
+               // assume 2D arrays
+               Index unitSize = 2;
+               Index length = xy.size()/2;
+#else
+               // check input dimensions
+               if (xy.ndim() != 2)
+                    throw std::runtime_error("Input should be 2-D NumPy array");
+               if (xy.shape()[1] != 2 && xy.shape()[1] != 3)
+                    throw std::runtime_error("Input should have size [N,2] or [N,3]");
+               if (rowPtr.ndim() != 1)
+                    throw std::runtime_error("IndexArray should be 1-D NumPy array");
+
+               Index unitSize = xy.shape()[1];
+               Index length = xy.shape()[0];
+#endif
+
+            auto data = xy.data();
             std::vector<U> rv;
             if constexpr (std::is_same_v<U, Point>)
             {
-                for (Index i = 0; i < input.length; ++i)
+                for (Index i = 0; i < length; ++i)
                 {
-                    rv.push_back(Point(data[i * input.unitSize], data[i * input.unitSize + 1]));
+                    rv.push_back(Point(data[i * unitSize], data[i * unitSize + 1]));
                 }
             }
             else if constexpr (std::is_same_v<U, LineString>)
             {
-                for (Index i = 0; i < input.rowPtr.size() - 1; ++i)
+                for (Index i = 0; i < rowPtr.size() - 1; ++i)
                 {
                     U line;
-                    for (Index j = input.rowPtr[i]; j < input.rowPtr[i + 1]; ++j)
+                    for (Index j = rowPtr.data()[i]; j < rowPtr.data()[i + 1]; ++j)
                     {
-                        line.push_back(Point(data[j * input.unitSize], data[j * input.unitSize + 1]));
+                        line.push_back(Point(data[j * unitSize], data[j * unitSize + 1]));
                     }
                     rv.push_back(line);
                 }
             }
             else if constexpr (std::is_same_v<U, OpenPolygon> || std::is_same_v<U, ClosedPolygon>)
             {
-                for (Index i = 0; i < input.rowPtr.size() - 1; ++i)
+                for (Index i = 0; i < rowPtr.size() - 1; ++i)
                 {
                     U polygon;
-                    for (Index j = input.rowPtr[i]; j < input.rowPtr[i + 1]; ++j)
+                    for (Index j = rowPtr.data()[i]; j < rowPtr.data()[i + 1]; ++j)
                     {
-                        polygon.outer().push_back(Point(data[j * input.unitSize], data[j * input.unitSize + 1]));
+                        polygon.outer().push_back(Point(data[j * unitSize], data[j * unitSize + 1]));
                     }
                     rv.push_back(polygon);
                 }
@@ -170,13 +187,13 @@ namespace boost_geo_query
     class PythonGeoQuery
     {
     public:
-        PythonGeoQuery(const Input &input);
+        PythonGeoQuery(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type);
         ~PythonGeoQuery() {}
 
-        DistanceResults nearest_to(const Input &i) { return _query->nearest_to(i); }
-        IntersectingResults intersects_with(const Input &i) { return _query->intersects_with(i); }
-        IntersectingResults overlaps_with(const Input &i) { return _query->overlaps_with(i); }
-        IntersectingResults within_distance_of(const Input &i, Distance d) { return _query->within_distance_of(i, d); }
+        QueryResults nearest_to(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) { return _query->nearest_to(xy, rowPtr, type); }
+        QueryResults intersects_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) { return _query->intersects_with(xy, rowPtr, type); }
+        QueryResults overlaps_with(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type) { return _query->overlaps_with(xy, rowPtr, type); }
+        QueryResults within_distance_of(const LocationArray &xy, const IndexArray &rowPtr, const std::string &type, Distance d) { return _query->within_distance_of(xy, rowPtr, type, d); }
 
     private:
         std::unique_ptr<GeoQueryWrapperBase> _query;

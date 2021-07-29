@@ -27,3 +27,9 @@ install-dev:
 	python setup.py develop
 
 test-all: unittest flake8 coverage bandit safety pylint
+
+level=patch
+export level
+
+bump-version:
+	bumpversion  --config-file .bumpversion.app $(level)

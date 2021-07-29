@@ -1,5 +1,5 @@
 #include <types.hpp>
-#include <unitTest/catch.hpp>
+#include <catch.hpp>
 #include <python_geo_query.hpp>
 
 namespace boost_geo_query
@@ -9,7 +9,7 @@ namespace boost_geo_query
     {
         GIVEN("A set of points in a tree and some points")
         {
-            InputPoints points;
+            LocationArray points;
             RTree rtree;
 
             for (double y = 0.0; y <= 4.0; y++)
@@ -25,9 +25,7 @@ namespace boost_geo_query
                 }
             }
 
-            Input input{points, IndexVector(), "point"};
-
-            InputPoints pv;
+            LocationArray pv;
             pv.push_back(1.2);
             pv.push_back(1.2);
 
@@ -36,20 +34,19 @@ namespace boost_geo_query
 
             WHEN("Nearest is called for the points")
             {
-                PythonGeoQuery query(input);
-                Input input2{pv, IndexVector(), "point"};
-                DistanceResults dr = query.nearest_to(input2);
+                PythonGeoQuery query(points, IndexVector(), "point");
+                QueryResults qr = query.nearest_to(pv, IndexVector(), "point");
 
-                THEN("nearest.results == (6, 8)")
+                THEN("nearest.indices == (6, 8)")
                 {
                     IndexVector expected = {6, 8};
-                    REQUIRE(dr.results == expected);
+                    REQUIRE(qr.indices == expected);
                 }
 
                 THEN("nearest.distance == (sqrt(2 * 0.2 * 0.2), 0.4)")
                 {
-                    REQUIRE(abs(dr.distances[0] - sqrt(2 * 0.2 * 0.2)) < (1.0e-6));
-                    REQUIRE(abs(dr.distances[1] - 0.4) < (1.0e-6));
+                    REQUIRE(abs(qr.distances[0] - sqrt(2 * 0.2 * 0.2)) < (1.0e-6));
+                    REQUIRE(abs(qr.distances[1] - 0.4) < (1.0e-6));
                 }
             }
         }
@@ -59,7 +56,7 @@ namespace boost_geo_query
     {
         GIVEN("A set of points in a tree and some polygon")
         {
-            InputPoints points;
+            LocationArray points;
             RTree rtree;
 
             for (double y = 0.0; y <= 4.0; y++)
@@ -75,9 +72,7 @@ namespace boost_geo_query
                 }
             }
 
-            Input input{points, IndexVector(), "point"};
-
-            InputPoints polygon;
+            LocationArray polygon;
             polygon.push_back(1.2);
             polygon.push_back(1.2);
 
@@ -95,20 +90,19 @@ namespace boost_geo_query
 
             WHEN("Nearest is called for a polygon")
             {
-                PythonGeoQuery query(input);
-                Input input2{polygon, IndexVector({0, 5}), "closed_polygon"};
-                DistanceResults dr = query.nearest_to(input2);
+                PythonGeoQuery query(points, IndexVector(), "point");
+                QueryResults qr = query.nearest_to(polygon, IndexVector({0, 5}), "closed_polygon");
 
-                THEN("nearest.results == (6)")
+                THEN("nearest.indices == (6)")
                 {
                     IndexVector expected = {6};
-                    REQUIRE(dr.results == expected);
+                    REQUIRE(qr.indices == expected);
                 }
 
                 THEN("nearest.distance == (sqrt(2 * 0.2 * 0.2))")
                 {
                     Distance expected = sqrt(2 * 0.2 * 0.2);
-                    REQUIRE(abs(dr.distances[0] - expected) < (1.0e-6));
+                    REQUIRE(abs(qr.distances[0] - expected) < (1.0e-6));
                 }
             }
         }

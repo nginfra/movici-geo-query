@@ -11,16 +11,20 @@
      #include <pybind11/pybind11.h>
 #endif
 
+
 namespace boost_geo_query
 {
+     using Location = double;
+     using Index = uint32_t;
 #ifdef NOPYBIND
-     using InputPoints = std::vector<double>;
+     using LocationArray = std::vector<Location>;
+     using IndexArray = std::vector<Index>;
 #else
      namespace py = pybind11;
-     using InputPoints = py::array_t<double>;
+     using LocationArray = py::array_t<Location, py::array::c_style | py::array::forcecast>;
+     using IndexArray = py::array_t<Index, py::array::c_style | py::array::forcecast>;
 #endif
 
-     using Location = double;
      namespace bg = boost::geometry;
      namespace bgi = bg::index;
      namespace bgm = bg::model;
@@ -32,7 +36,6 @@ namespace boost_geo_query
 
 #define Vector std::vector
      using Distance = Location;
-     using Index = uint32_t;
      using LocationVector = Vector<Location>;
      using PointVector = Vector<Point>;
      using IndexVector = Vector<Index>;
@@ -53,44 +56,15 @@ namespace boost_geo_query
 
      struct DistanceResult
      {
-          Index result;
+          Index index;
           Distance distance;
      };
 
-     struct DistanceResults
+     struct QueryResults
      {
-          IndexVector results;
+          IndexVector indices;
+          IndexVector rowPtr;
           DistanceVector distances;
-     };
-
-     struct IntersectingResults
-     {
-          IndexVector results;
-          IndexVector rowPtr;
-     };
-
-     struct Input
-     {
-          Input(const InputPoints &p, const IndexVector &r, const std::string &t) : xy(p), rowPtr(r), type(t)
-          {
-#ifdef NOPYBIND
-               unitSize = 2;
-               length = xy.size()/2;
-#else
-               // check input dimensions
-               if (xy.ndim() != 2)
-                    throw std::runtime_error("Input should be 2-D NumPy array");
-               if (xy.shape()[1] != 2 && xy.shape()[1] != 3)
-                    throw std::runtime_error("Input should have size [N,2] or [N,3]");
-               unitSize = xy.shape()[1];
-               length = xy.shape()[0];
-#endif
-          }
-          InputPoints xy;
-          Index unitSize; // 2 or 3 [x,y] vs [x,y,z]
-          Index length;
-          IndexVector rowPtr;
-          std::string type;
      };
 
      namespace accepted_input_types

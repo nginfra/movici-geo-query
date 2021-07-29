@@ -2,7 +2,6 @@ import typing as t
 from abc import abstractmethod
 
 import numpy as np
-from interface import CInput, CIndexVector
 
 
 class Geometry:
@@ -20,17 +19,15 @@ class Geometry:
     def __len__(self):
         if not self.csr:
             return self.points.shape[0]
-        if self.row_ptr.size > 1:
-            return self.row_ptr.size - 1
-        return 0
+        return self.row_ptr.size - 1
 
     @abstractmethod
     def _verify(self):
         raise NotImplementedError
 
-    def as_c_input(self) -> CInput:
-        row_ptr = CIndexVector(self.row_ptr if self.csr else np.array([0], dtype=np.uint32))
-        return CInput(self.points, row_ptr, self.type)
+    def as_c_input(self) -> t.Tuple[np.ndarray, np.ndarray, str]:
+        row_ptr = self.row_ptr if self.csr else np.array([0], dtype=np.uint32)
+        return self.points, row_ptr, self.type
 
 
 class PointGeometry(Geometry):

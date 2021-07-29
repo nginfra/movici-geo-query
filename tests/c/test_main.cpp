@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_RUNNER
-#include <unitTest/catch.hpp>
+#include <catch.hpp>
 
 int main( int argc, char* argv[] )
 {

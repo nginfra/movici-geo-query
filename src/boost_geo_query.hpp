@@ -27,25 +27,63 @@ namespace boost_geo_query
 
         // touching != overlapping
         template <class U, class = GEO_TYPES<U>>
-        IntersectingResults overlaps_with(const std::vector<U> &geo) { return intersects_with(geo, true); }
+        QueryResults overlaps_with(const std::vector<U> &geo) { return intersects_with(geo, true); }
 
         template <class U, class = GEO_TYPES<U>>
-        IntersectingResults intersects_with(const std::vector<U> &geo, bool require_full_overlap = false)
+        QueryResults intersects_with(const std::vector<U> &geo, bool require_full_overlap = false)
         {
-            IntersectingResults ir;
-            ir.rowPtr.push_back(0);
+            QueryResults qr;
+            qr.rowPtr.push_back(0);
 
             for (const auto &p : geo)
             {
                 IndexVector r = intersects_with(p, require_full_overlap);
                 if (r.size() > 0)
                 {
-                    ir.results.insert(ir.results.end(), r.begin(), r.end());
+                    qr.indices.insert(qr.indices.end(), r.begin(), r.end());
                 }
-                ir.rowPtr.push_back(ir.results.size());
+                qr.rowPtr.push_back(qr.indices.size());
             }
-            return ir;
+            return qr;
         }
+
+        template <class U, class = GEO_TYPES<U>>
+        QueryResults nearest_to(const std::vector<U> &geo)
+        {
+            QueryResults qr;
+            qr.indices.reserve(geo.size());
+            qr.distances.reserve(geo.size());
+
+            for (const auto &p : geo)
+            {
+                DistanceResult dr = nearest_to(p);
+                qr.indices.push_back(dr.index);
+                qr.distances.push_back(dr.distance);
+            }
+            return qr;
+        }
+
+        template <class U, class = GEO_TYPES<U>>
+        QueryResults within_distance_of(const std::vector<U> &geo, Distance dist)
+        {
+            QueryResults qr;
+            qr.rowPtr.push_back(0);
+
+            for (const auto &p : geo)
+            {
+                IndexVector r = within_distance_of(p, dist);
+                if (r.size() > 0)
+                {
+                    qr.indices.insert(qr.indices.end(), r.begin(), r.end());
+                }
+                qr.rowPtr.push_back(qr.indices.size());
+            }
+            return qr;
+        }
+
+    private:
+        TargetVector _target_geo;
+        RTree _rTree;
 
         template <class U, class = GEO_TYPES<U>>
         IndexVector intersects_with(const U &geo, bool require_full_overlap)
@@ -66,22 +104,6 @@ namespace boost_geo_query
 
             std::sort(rv.begin(), rv.end());
             return rv;
-        }
-
-        template <class U, class = GEO_TYPES<U>>
-        DistanceResults nearest_to(const std::vector<U> &geo)
-        {
-            DistanceResults drs;
-            drs.results.reserve(geo.size());
-            drs.distances.reserve(geo.size());
-
-            for (const auto &p : geo)
-            {
-                DistanceResult dr = nearest_to(p);
-                drs.results.push_back(dr.result);
-                drs.distances.push_back(dr.distance);
-            }
-            return drs;
         }
 
         template <class U, class = GEO_TYPES<U>>
@@ -145,24 +167,6 @@ namespace boost_geo_query
         }
 
         template <class U, class = GEO_TYPES<U>>
-        IntersectingResults within_distance_of(const std::vector<U> &geo, Distance dist)
-        {
-            IntersectingResults ir;
-            ir.rowPtr.push_back(0);
-
-            for (const auto &p : geo)
-            {
-                IndexVector r = within_distance_of(p, dist);
-                if (r.size() > 0)
-                {
-                    ir.results.insert(ir.results.end(), r.begin(), r.end());
-                }
-                ir.rowPtr.push_back(ir.results.size());
-            }
-            return ir;
-        }
-
-        template <class U, class = GEO_TYPES<U>>
         IndexVector within_distance_of(const U &geo, Distance dist)
         {
             // create box around geometry to capture min/max
@@ -191,10 +195,6 @@ namespace boost_geo_query
             std::sort(rv.begin(), rv.end());
             return rv;
         }
-
-    private:
-        TargetVector _target_geo;
-        RTree _rTree;
     };
 
 }

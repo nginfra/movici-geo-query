@@ -1,7 +1,7 @@
 import typing as t
 
 import numpy as np
-from interface import CInput, CIndexVector, CGeoQuery
+from interface import CGeoQuery
 
 from .geometry import Geometry
 
@@ -9,17 +9,21 @@ from .geometry import Geometry
 class QueryResult:
     def __init__(
         self,
-        data: np.ndarray,
+        indices: np.ndarray,
         row_ptr: t.Optional[np.ndarray] = None,
         distances: t.Optional[np.ndarray] = None,
     ) -> None:
-        self.results = np.asarray(data)
-        self.row_ptr = np.asarray(row_ptr) if row_ptr is not None else None
-        self.distances = np.asarray(distances) if row_ptr is not None else None
+        self.indices = np.asarray(indices, dtype=np.uint32)
+        self.row_ptr = (
+            np.asarray(row_ptr, dtype=np.uint32) if row_ptr is not None else None
+        )
+        self.distances = (
+            np.asarray(distances, dtype=np.float64) if distances is not None else None
+        )
 
     def iterate(self) -> t.Iterator[np.ndarray]:
         if self.row_ptr is None:
-            for elem in self.results:
+            for elem in self.indices:
                 yield np.array([elem])
         else:
             yield from self._iterate()
@@ -28,74 +32,67 @@ class QueryResult:
         for i in range(len(self.row_ptr) - 1):
             start = self.row_ptr[i]
             end = self.row_ptr[i + 1]
-            yield self.results[start:end, ...]
+            yield self.indices[start:end, ...]
+
+
+def empty_result(geometry: Geometry) -> QueryResult:
+    if geometry.csr:
+        row_ptr = np.zeros(len(geometry) + 1, dtype=np.int32)
+    else:
+        row_ptr = np.zeros(0, dtype=np.int32)
+
+    return QueryResult(
+        indices=np.empty(0, dtype=np.int32),
+        row_ptr=row_ptr,
+        distances=np.empty(0, dtype=np.float64),
+    )
+
+
+OVERLAPS = 1
+NEAREST = 2
+INTERSECTS = 3
+DISTANCE = 4
 
 
 class GeoQuery:
     _interface: t.Optional[CGeoQuery] = None
 
     def __init__(self, target_geometry: Geometry) -> None:
-        self._interface = None
-        if len(target_geometry) > 0:
-            row_ptr = CIndexVector(
-                target_geometry.row_ptr if target_geometry.csr else np.array([0], dtype=np.uint32)
-            )
-            query_input = CInput(target_geometry.points, row_ptr, target_geometry.type)
-            self._interface = CGeoQuery(query_input)
-
-    def _query_is_empty(self, target_geometry: Geometry) -> bool:
-        return self._interface is None or len(target_geometry) == 0
-
-    #
-    # def _query(self, target_geometry: Geometry, method: str) -> QueryResult:
-    #     if self._check_query_empty(target_geometry):
-    #         return self._empty_result(target_geometry)
+        self._interface = (
+            CGeoQuery(*target_geometry.as_c_input())
+            if len(target_geometry) != 0
+            else None
+        )
 
     def overlaps_with(self, geometry: Geometry) -> QueryResult:
-        if self._query_is_empty(geometry):
-            return self._empty_result(geometry)
-
-        intersecting_result = self._interface.overlaps_with(geometry.as_c_input())
-        return QueryResult(
-            data=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
-        )
+        return self.query(OVERLAPS, geometry)
 
     def intersects_with(self, geometry: Geometry) -> QueryResult:
-        if self._query_is_empty(geometry):
-            return self._empty_result(geometry)
-
-        intersecting_result = self._interface.intersects_with(geometry.as_c_input())
-        return QueryResult(
-            data=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
-        )
+        return self.query(INTERSECTS, geometry)
 
     def nearest_to(self, geometry: Geometry) -> QueryResult:
-        if self._query_is_empty(geometry):
-            return self._empty_result(geometry)
-
-        distance_result = self._interface.nearest_to(geometry.as_c_input())
-        return QueryResult(
-            data=distance_result.results(), distances=distance_result.distances()
-        )
+        return self.query(NEAREST, geometry)
 
     def within_distance_of(self, geometry: Geometry, distance: float) -> QueryResult:
-        if self._query_is_empty(geometry):
-            return self._empty_result(geometry)
+        return self.query(DISTANCE, geometry, distance=distance)
 
-        intersecting_result = self._interface.within_distance_of(geometry.as_c_input(), distance)
-        return QueryResult(
-            data=intersecting_result.results(), row_ptr=intersecting_result.row_ptr()
-        )
+    def query(self, query_type: int, geometry: Geometry, **kwargs):
+        if self._interface is None or geometry == 0:
+            return empty_result(geometry)
 
-    @staticmethod
-    def _empty_result(target_geometry: Geometry) -> QueryResult:
-        if target_geometry.csr:
-            row_ptr = np.zeros(len(target_geometry) + 1, dtype=np.int32)
+        if query_type == NEAREST:
+            distance_result = self._interface.nearest_to(*geometry.as_c_input())
+            return QueryResult(
+                indices=distance_result.indices(), distances=distance_result.distances()
+            )
+
+        elif query_type == OVERLAPS:
+            raw = self._interface.overlaps_with(*geometry.as_c_input())
+        elif query_type == INTERSECTS:
+            raw = self._interface.intersects_with(*geometry.as_c_input())
+        elif query_type == DISTANCE:
+            distance = kwargs.pop("distance")
+            raw = self._interface.within_distance_of(*geometry.as_c_input(), distance)
         else:
-            row_ptr = np.zeros(0, dtype=np.int32)
-
-        return QueryResult(
-            data=np.empty(0, dtype=np.int32),
-            row_ptr=row_ptr,
-            distances=np.empty(0, dtype=np.float64),
-        )
+            raise ValueError(f"Undefined query type {query_type}")
+        return QueryResult(indices=raw.indices(), row_ptr=raw.row_ptr())
