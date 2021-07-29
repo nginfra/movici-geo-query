@@ -16,9 +16,7 @@ test:
   script:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
-    - python setup.py build_ext
-    - pip wheel --no-deps .
-    - pip install *.whl
+    - pip install .
     - make test-all
 
 build:
@@ -27,6 +25,7 @@ build:
     untracked: true
   script:
     - pip install -r requirements.txt
+    - pip install -r requirements-dev.txt
     - pip wheel --no-deps .
 
 upload:
