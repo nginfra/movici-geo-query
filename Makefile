@@ -2,20 +2,20 @@ unittest:
 	pytest -v tests
 
 flake8:
-	flake8 boost_geo_query/
+	flake8 movici_geo_query/
 
 coverage:
-	pytest --cov `cd tests && python -c "import os, boost_geo_query; print(os.path.dirname(boost_geo_query.__file__))"` --cov-report=term-missing --cov-report=xml
+	pytest --cov `cd tests && python -c "import os, movici_geo_query; print(os.path.dirname(movici_geo_query.__file__))"` --cov-report=term-missing --cov-report=xml
 
 bandit:
-	bandit --recursive boost_geo_query/
-	bandit -f json -o bandit-report.json -r boost_geo_query/
+	bandit --recursive movici_geo_query/
+	bandit -f json -o bandit-report.json -r movici_geo_query/
 
 safety:
 	safety check -r requirements.txt --full-report
 
 pylint:
-	pylint boost_geo_query --exit-zero -r n | tee pylint.txt
+	pylint movici_geo_query --exit-zero -r n | tee pylint.txt
 
 install:
 	pip install -r requirements.txt
