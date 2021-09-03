@@ -43,9 +43,9 @@ ext_modules = [
 ]
 
 setup(
-    name="boost-geo-query",
+    name="movici-geo-query",
     version=VERSION,
-    description="Boost geospatial queries in C++",
+    description="Geospatial queries powered by Boost Geom",
     long_description=README,
     ext_modules=ext_modules,
     author="Eelco Naarding",
