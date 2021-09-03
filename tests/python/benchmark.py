@@ -4,8 +4,8 @@ import tracemalloc
 from timeit import default_timer as timer
 
 import numpy as np
-from boost_geo_query.geo_query import GeoQuery
-from boost_geo_query.geometry import (
+from movici_geo_query.geo_query import GeoQuery
+from movici_geo_query.geometry import (
     PointGeometry,
 )
 
