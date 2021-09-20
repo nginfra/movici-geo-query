@@ -20,6 +20,10 @@ test:
     - pip install .
     - make test-all
 
+test:3.9:
+  extends: test
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
+
 build:
   image: eu.gcr.io/movici-develop/cicd-build-tools:latest
   stage: build
@@ -29,6 +33,10 @@ build:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
     - pip wheel --no-deps .
+
+build:3.9:
+  extends: build
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
 
 upload:
   stage: upload
