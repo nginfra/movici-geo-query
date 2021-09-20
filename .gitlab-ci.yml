@@ -12,6 +12,7 @@ variables:
   KUBERNETES_CPU_LIMIT: 1000m
 
 test:
+  image: eu.gcr.io/movici-develop/cicd-build-tools:0.1.1
   stage: test
   script:
     - pip install -r requirements.txt
