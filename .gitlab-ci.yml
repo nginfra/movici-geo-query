@@ -1,4 +1,4 @@
-image: eu.gcr.io/movici-develop/cicd-build-env:latest
+image: eu.gcr.io/movici-develop/cicd-pipeline-tools:latest
 
 stages:
   - test
@@ -12,6 +12,7 @@ variables:
   KUBERNETES_CPU_LIMIT: 1000m
 
 test:
+  image: eu.gcr.io/movici-develop/cicd-build-tools:latest
   stage: test
   script:
     - pip install -r requirements.txt
@@ -20,6 +21,7 @@ test:
     - make test-all
 
 build:
+  image: eu.gcr.io/movici-develop/cicd-build-tools:latest
   stage: build
   artifacts:
     untracked: true
