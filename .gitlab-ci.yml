@@ -1,4 +1,4 @@
-image: eu.gcr.io/movici-develop/cicd-build-env:latest
+image: eu.gcr.io/movici-develop/cicd-pipeline-tools:latest
 
 stages:
   - test
@@ -20,6 +20,7 @@ test:
     - make test-all
 
 build:
+  image: eu.gcr.io/movici-develop/cicd-build-tools:latest
   stage: build
   artifacts:
     untracked: true
