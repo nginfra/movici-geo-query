@@ -62,7 +62,7 @@ test:3.10:
     - pip install -r requirements-dev.txt
     - pip wheel --no-deps .
 
-build3.8:
+build:3.8:
   extends: .build
   image: eu.gcr.io/movici-develop/cicd-build-tools:python3.8
 
@@ -77,9 +77,9 @@ build:3.10:
 upload:
   stage: upload
   dependencies:
-    - build3.8
-    - build3.9
-    - build3.10
+    - build:3.8
+    - build:3.9
+    - build:3.10
   only:
     - master
     - /^.*testci-.*$/
