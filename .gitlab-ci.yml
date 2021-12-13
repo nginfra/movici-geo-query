@@ -27,7 +27,7 @@ check_version_upgrade:
         echo "All merge requests require a version upgrade. Please update your version"
         exit 1
       fi
-test:
+.test:
   image: eu.gcr.io/movici-develop/cicd-build-tools:latest
   stage: test
   only:
@@ -38,17 +38,19 @@ test:
     - pip install -r requirements-dev.txt
     - pip install .
     - make test-all
+test:3.8:
+  extends: .test
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.8
 
 test:3.9:
-  extends: test
+  extends: .test
   image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
 
 test:3.10:
-  extends: test
-  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
+  extends: .test
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.10
 
-build3.8:
-  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.8
+.build:
   stage: build
   only:
     refs:
@@ -60,12 +62,16 @@ build3.8:
     - pip install -r requirements-dev.txt
     - pip wheel --no-deps .
 
+build3.8:
+  extends: .build
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.8
+
 build:3.9:
-  extends: build
+  extends: .build
   image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
 
 build:3.10:
-  extends: build
+  extends: .build
   image: eu.gcr.io/movici-develop/cicd-build-tools:python3.10
 
 upload:
