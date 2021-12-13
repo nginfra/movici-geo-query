@@ -1,6 +1,7 @@
 image: eu.gcr.io/movici-develop/cicd-pipeline-tools:latest
 
 stages:
+  - verify
   - test
   - build
   - upload
@@ -11,22 +12,49 @@ variables:
   KUBERNETES_CPU_REQUEST: 600m
   KUBERNETES_CPU_LIMIT: 1000m
 
-test:
+check_version_upgrade:
+  stage: verify
+  image: alpine/git
+  only:
+    refs:
+      - merge_requests
+  variables:
+    VERSION_FILES: "VERSION"
+  script:
+    - git fetch origin master
+    - |-
+      if [[ -z $(git diff origin/master --name-only ${VERSION_FILES}) ]]; then
+        echo "All merge requests require a version upgrade. Please update your version"
+        exit 1
+      fi
+.test:
   image: eu.gcr.io/movici-develop/cicd-build-tools:latest
   stage: test
+  only:
+    refs:
+      - merge_requests
   script:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
     - pip install .
     - make test-all
+test:3.8:
+  extends: .test
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.8
 
 test:3.9:
-  extends: test
+  extends: .test
   image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
 
-build:
-  image: eu.gcr.io/movici-develop/cicd-build-tools:latest
+test:3.10:
+  extends: .test
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.10
+
+.build:
   stage: build
+  only:
+    refs:
+      - merge_requests
   artifacts:
     untracked: true
   script:
@@ -34,14 +62,24 @@ build:
     - pip install -r requirements-dev.txt
     - pip wheel --no-deps .
 
+build:3.8:
+  extends: .build
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.8
+
 build:3.9:
-  extends: build
+  extends: .build
   image: eu.gcr.io/movici-develop/cicd-build-tools:python3.9
+
+build:3.10:
+  extends: .build
+  image: eu.gcr.io/movici-develop/cicd-build-tools:python3.10
 
 upload:
   stage: upload
   dependencies:
-    - build
+    - build:3.8
+    - build:3.9
+    - build:3.10
   only:
     - master
     - /^.*testci-.*$/
