@@ -33,6 +33,7 @@ check_version_upgrade:
   only:
     refs:
       - merge_requests
+      - master
   script:
     - pip install -r requirements.txt
     - pip install -r requirements-dev.txt
@@ -55,6 +56,7 @@ test:3.10:
   only:
     refs:
       - merge_requests
+      - master
   artifacts:
     untracked: true
   script:
