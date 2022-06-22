@@ -23,14 +23,15 @@ jobs:
 
       - name: Install boost
         run: |
-          INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
-          TMP_DIR=/tmp
-          BOOST_VERSION="${BOOST_VERSION:-1_79_0}"
-          BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
+          apt-get update && apt-get install -y libboost-dev
+          # INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
+          # TMP_DIR=/tmp
+          # BOOST_VERSION="${BOOST_VERSION:-1_79_0}"
+          # BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
 
-          wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
-          tar -xzf boost_${BOOST_VERSION}.tar.gz
-          mv boost_${BOOST_VERSION}/boost ${INCLUDE_DIR}
+          # wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
+          # tar -xzf boost_${BOOST_VERSION}.tar.gz
+          # mv boost_${BOOST_VERSION}/boost ${INCLUDE_DIR}
           
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.12
