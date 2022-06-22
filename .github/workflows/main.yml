@@ -30,13 +30,13 @@ jobs:
           mkdir -p ${TMP_DIR}
           git clone --depth 1 --branch boost-${BOOST_VERSION} \
             https://github.com/boostorg/geometry.git ${TMP_DIR}
-          mv ${TMP_DIR}/include/boost ${INCLUDE_DIR}/boost
+          mv ${TMP_DIR}/include/boost/* ${INCLUDE_DIR}/boost
 
           TMP_DIR=/tmp/boost_config
           mkdir -p ${TMP_DIR}
           git clone --depth 1 --branch boost-${BOOST_VERSION} \
             https://github.com/boostorg/config.git ${TMP_DIR}
-          mv ${TMP_DIR}/include/boost ${INCLUDE_DIR}/boost
+          mv ${TMP_DIR}/include/boost/* ${INCLUDE_DIR}/boost
           
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.12
