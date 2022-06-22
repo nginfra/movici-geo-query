@@ -46,7 +46,7 @@ directly from `GitHub <https://github.com/boostorg/geometry>`_. When downloading
 make sure the boost header files can be found by pip by placing them in pythons ``include`` 
 directory:
 
- .. code-block:: bash
+.. code-block:: bash
   
   BOOST_VERSION=1.79.0
   INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
