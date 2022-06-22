@@ -23,7 +23,7 @@ jobs:
 
       - name: Install boost
         run: |
-          apt-get update && apt-get install -y libboost-dev
+          sudo apt-get update && sudo apt-get install -y libboost-dev
           # INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
           # TMP_DIR=/tmp
           # BOOST_VERSION="${BOOST_VERSION:-1_79_0}"
