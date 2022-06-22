@@ -1,0 +1,55 @@
+name: Main
+
+on: [push]
+
+env:
+  BOOST_VERSION: 1.79.0
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.8"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install boost
+        run: |
+          INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
+          TMP_DIR=/tmp/boost_geometry
+          mkdir -p ${TMP_DIR}
+          git clone --depth 1 --branch boost-${BOOST_VERSION} \
+            https://github.com/boostorg/geometry.git ${TMP_DIR}
+          mv ${TMP_DIR}/include/boost ${INCLUDE_DIR}
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.12
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+
+      - name: Build and install
+        run: |
+          pip install .
+      
+      - name: Test C-code
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make -j
+          ./test
+          cd ..
+
+      - name: Test with pytest
+        run: |
+          pytest tests/python
