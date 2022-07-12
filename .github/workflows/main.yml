@@ -57,7 +57,7 @@ jobs:
         run: |
           pytest tests/python
  
- build-windows:
+  build-windows:
     runs-on: windows-latest
     strategy:
       matrix:
