@@ -6,11 +6,11 @@ env:
   BOOST_VERSION: 1_79_0
 
 jobs:
-  test:
+  test-linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # python-version: ["3.6", "3.7", "3.8", "3.9"]
+        # python-version: ["3.7", "3.8", "3.9", "3.10"]
         python-version: ["3.8"]
 
     steps:
@@ -56,3 +56,41 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/python
+ 
+ build-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        # python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.10"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install boost
+        run: |
+          INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
+          TMP_DIR=/tmp
+          BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
+
+          wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
+          tar -xzf boost_${BOOST_VERSION}.tar.gz
+          mv boost_${BOOST_VERSION}/boost ${INCLUDE_DIR}
+          
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.8.0
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
