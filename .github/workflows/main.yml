@@ -63,6 +63,8 @@ jobs:
       matrix:
         # python-version: ["3.6", "3.7", "3.8", "3.9"]
         python-version: ["3.10"]
+    env:
+      BOOST_DIR: 'boost/boost'
     steps:
       - uses: actions/checkout@v3
 
@@ -79,7 +81,7 @@ jobs:
           Invoke-WebRequest -Uri "https://boostorg.jfrog.io/artifactory/main/release/$Env:BOOST_VERSION_DOT/source/boost_$Env:BOOST_VERSION.tar.gz" -OutFile "boost.tar.gz"
 
           tar -xzf boost.tar.gz
-          mv "boost_$Env:BOOST_VERSION/boost" $Env:INCLUDE_DIR
+          mv boost_$Env:BOOST_VERSION boost
           
       - name: Install dependencies
         run: |
