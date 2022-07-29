@@ -80,7 +80,7 @@ jobs:
           TMP_DIR=/tmp
           BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
 
-          wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
+          /c/msys64/usr/bin/wget.exe -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
           tar -xzf boost_${BOOST_VERSION}.tar.gz
           mv boost_${BOOST_VERSION}/boost ${INCLUDE_DIR}
           

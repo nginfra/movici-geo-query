@@ -1,7 +1,7 @@
 import typing as t
 
 import numpy as np
-from interface import CGeoQuery
+from _movici_geo_query import CGeoQuery
 
 from .geometry import Geometry
 

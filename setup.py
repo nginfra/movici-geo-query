@@ -35,7 +35,7 @@ else:
 
 ext_modules = [
     Pybind11Extension(
-        "interface",
+        "_movici_geo_query",
         sorted(str(file) for file in SRC_DIR.glob("*.cpp")),
         include_dirs=[str(SRC_DIR)],
         extra_compile_args=extra_compile_args,

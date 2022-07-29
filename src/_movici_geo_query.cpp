@@ -12,7 +12,7 @@ PYBIND11_MAKE_OPAQUE(boost_geo_query::IndexVector);
 PYBIND11_MAKE_OPAQUE(boost_geo_query::DistanceVector);
 
 
-PYBIND11_MODULE(interface, m)
+PYBIND11_MODULE(_movici_geo_query, m)
 {
     py::bind_vector<boost_geo_query::DistanceVector>(m, "CDistanceVector");
     py::bind_vector<boost_geo_query::IndexVector>(m, "CIndexVector");
