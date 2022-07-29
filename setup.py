@@ -1,7 +1,8 @@
+import sys
 from pathlib import Path
 
 from pybind11.setup_helpers import Pybind11Extension
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def read_file_or_empty_str(file, comment_tag=None):
@@ -27,16 +28,19 @@ SRC_DIR = CURRENT_DIR / "src"
 _DEBUG = False
 _DEBUG_LEVEL = 0
 # extra_compile_args = sysconfig.get_config_var('CFLAGS').split()
-extra_compile_args = ["-Wall", "-Wextra", "-std=c++17"]
-if _DEBUG:
-    extra_compile_args += ["-g3", "-O0", "-DDEBUG=%s" % _DEBUG_LEVEL, "-UNDEBUG"]
+if sys.platform.startswith("win32"):
+    extra_compile_args = []
 else:
-    extra_compile_args += ["-DNDEBUG", "-O3"]
+    extra_compile_args = ["-Wall", "-Wextra", "-std=c++17"]
+    if _DEBUG:
+        extra_compile_args += ["-g3", "-O0", "-DDEBUG=%s" % _DEBUG_LEVEL, "-UNDEBUG"]
+    else:
+        extra_compile_args += ["-DNDEBUG", "-O3"]
 
 ext_modules = [
     Pybind11Extension(
         "_movici_geo_query",
-        sorted(str(file) for file in SRC_DIR.glob("*.cpp")),
+        sorted(str(file.relative_to(CURRENT_DIR)) for file in SRC_DIR.glob("*.cpp")),
         include_dirs=[str(SRC_DIR)],
         extra_compile_args=extra_compile_args,
     ),

@@ -1,4 +1,4 @@
-from interface import CGeoQuery
+from _movici_geo_query import CGeoQuery
 import numpy as np
 
 

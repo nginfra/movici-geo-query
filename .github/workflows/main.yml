@@ -73,7 +73,7 @@ jobs:
 
       - name: Install boost
         run: |
-          $Env:INCLUDE_DIR= (python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
+          $Env:INCLUDE_DIR = (python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
           $Env:BOOST_VERSION_DOT = $Env:BOOST_VERSION -replace '_','.'
 
           Invoke-WebRequest -Uri "https://boostorg.jfrog.io/artifactory/main/release/$Env:BOOST_VERSION_DOT/source/boost_$Env:BOOST_VERSION.tar.gz" -OutFile "boost.tar.gz"
