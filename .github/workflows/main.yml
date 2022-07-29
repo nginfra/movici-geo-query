@@ -76,13 +76,13 @@ jobs:
 
       - name: Install boost
         run: |
-          INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
-          TMP_DIR=/tmp
-          BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
+          $Env:INCLUDE_DIR= (python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
+          $Env:BOOST_VERSION_DOT = $Env:BOOST_VERSION -replace '_','.'
 
-          /c/msys64/usr/bin/wget.exe -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
-          tar -xzf boost_${BOOST_VERSION}.tar.gz
-          mv boost_${BOOST_VERSION}/boost ${INCLUDE_DIR}
+          Invoke-WebRequest -Uri "https://boostorg.jfrog.io/artifactory/main/release/$Env:BOOST_VERSION_DOT/source/boost_$Env:BOOST_VERSION.tar.gz" -OutFile "boost.tar.gz"
+
+          tar -xzf boost.tar.gz
+          mv "boost_$Env:BOOST_VERSION/boost" $Env:INCLUDE_DIR
           
       - name: Install dependencies
         run: |
