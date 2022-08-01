@@ -34,7 +34,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install boost (Windows)
-        if: matrix.os == "windows-latest"
+        if: matrix.os == 'windows-latest'
         run: |
           $Env:BOOST_VERSION_DOT = $Env:BOOST_VERSION -replace '_','.'
 
@@ -44,7 +44,7 @@ jobs:
           mv "boost_$Env:BOOST_VERSION/boost" $Env:BOOST_DIR
 
       - name: Install boost (Linux)
-        if: matrix.os == "ubuntu-latest"
+        if: matrix.os == 'ubuntu-latest'
         run: |
           BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
 
