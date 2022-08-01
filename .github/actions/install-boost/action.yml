@@ -21,7 +21,7 @@ runs:
         Invoke-WebRequest -Uri "https://boostorg.jfrog.io/artifactory/main/release/$Env:BOOST_VERSION_DOT/source/boost_$Env:BOOST_VERSION.tar.gz" -OutFile "boost.tar.gz"
 
         tar -xzf boost.tar.gz
-        mkdir -p $Env:BOOST_DIR
+        mkdir -p $Env:boost_dir
         mv "boost_$Env:BOOST_VERSION/boost/*" $Env:BOOST_DIR
 
     - name: Install boost (Linux)

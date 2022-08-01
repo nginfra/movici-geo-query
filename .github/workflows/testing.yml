@@ -36,6 +36,9 @@ jobs:
 
       - name: Install Boost
         uses: ./.github/actions/install-boost
+        with:
+          os: ${{ matrix.os }}
+          boost-dir: ${{ env.BOOST_DIR }}
 
       - name: Install dependencies
         run: |
