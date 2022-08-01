@@ -51,10 +51,10 @@ jobs:
           wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz -O boost.tar.gz
 
           tar -xzf boost.tar.gz
-          mv boost_${BOOST_VERSION}/boost boost/
-          ls boost/
+          mkdir -p ${BOOST_DIR}
+          mv boost_${BOOST_VERSION}/boost/* ${BOOST_DIR}
           ls ${BOOST_DIR}
-          
+
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
