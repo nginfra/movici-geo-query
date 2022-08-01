@@ -13,7 +13,7 @@ env:
   BOOST_VERSION: 1_79_0
 
 jobs:
-build-and-deploy:
+  build-and-deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     strategy:
