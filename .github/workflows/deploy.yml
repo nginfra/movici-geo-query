@@ -11,9 +11,8 @@ env:
   BOOST_VERSION: 1_79_0
 
 jobs:
-  if: ${{ github.event.workflow_run.conclusion == 'success' }}
-  
   build-and-deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -42,6 +41,8 @@ jobs:
 
           tar -xzf boost.tar.gz
           mv "boost_$Env:BOOST_VERSION/boost" boost/
+          ls boost/
+          ls ${BOOST_DIR}
 
       - name: Install boost (Linux)
         if: matrix.os == 'ubuntu-latest'
