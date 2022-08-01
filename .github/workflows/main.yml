@@ -142,6 +142,10 @@ jobs:
           os: ${{ matrix.os }}
           boost-dir: ${{ env.BOOST_DIR }}
 
+      - name: Update pip
+        run: |
+          pip install --upgrade pip
+          
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
