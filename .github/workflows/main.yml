@@ -1,4 +1,4 @@
-name: Main Workflow
+name: Main
 
 on:
   pull_request:
@@ -56,7 +56,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install boost 
+      - name: Install boost
         run: |
           sudo apt-get update && sudo apt-get install -y libboost-dev
 
@@ -111,49 +111,3 @@ jobs:
       - name: Test with pytest
         run: |
           pytest tests/python
-  build-and-deploy:
-    needs: ['black', 'flake8', 'tests-c', 'tests-python']
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10"]
-        include:
-          - os: ubuntu-latest
-            python-version: "3.10"
-            sdist: "gztar"
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Boost
-        uses: ./.github/actions/install-boost
-        with:
-          os: ${{ matrix.os }}
-          boost-dir: ${{ env.BOOST_DIR }}
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements-dev.txt
-
-      - name: Build source distribution
-        if: ${{ matrix.sdist }}
-        env:
-          SDIST_FORMAT: ${{ matrix.sdist }}
-        run: |
-          python setup.py sdist --formats ${SDIST_FORMAT} --dist-dir dist/
-
-      - name: Build wheel
-        if: "! ${{ matrix.sdist }}"
-        run: |
-          pip wheel --no-deps --wheel-dir dist/ .
-
-      - uses: actions/upload-artifact@v3
-        with:
-          path: ./dist/*
