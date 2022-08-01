@@ -1,0 +1,34 @@
+name: Testing (C-Extension)
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install boost 
+        run: |
+          sudo apt-get update && sudo apt-get install -y libboost-dev
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.12
+
+      - name: Test C-code
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make -j
+          ./test
+          cd ..
