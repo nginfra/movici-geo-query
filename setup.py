@@ -10,14 +10,13 @@ from setuptools import find_packages, setup
 # the Boost header files
 BOOST_DIR = Path(os.environ.get("BOOST_DIR", "")).absolute().parent
 
+
 def read_file_or_empty_str(file, comment_tag=None):
     try:
         with open(file) as fh:
             if comment_tag is not None:
                 return "\n".join(
-                    r.strip("\n")
-                    for r in fh.readlines()
-                    if not r.startswith(comment_tag)
+                    r.strip("\n") for r in fh.readlines() if not r.startswith(comment_tag)
                 )
             return fh.read()
     except FileNotFoundError:
