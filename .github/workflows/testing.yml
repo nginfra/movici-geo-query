@@ -52,7 +52,9 @@ jobs:
 
           tar -xzf boost.tar.gz
           mv boost_${BOOST_VERSION}/boost boost/
-
+          ls boost/
+          ls ${BOOST_DIR}
+          
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
