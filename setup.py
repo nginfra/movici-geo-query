@@ -1,7 +1,14 @@
+import os
+import sys
 from pathlib import Path
 
 from pybind11.setup_helpers import Pybind11Extension
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
+
+# Compiling requires Boost. The compiler can try and find Boost at the usual locations
+# Alternatively the BOOST_DIR environment variable can be set, point to the directory with
+# the Boost header files
+BOOST_DIR = Path(os.environ.get("BOOST_DIR", "")).absolute().parent
 
 
 def read_file_or_empty_str(file, comment_tag=None):
@@ -9,9 +16,7 @@ def read_file_or_empty_str(file, comment_tag=None):
         with open(file) as fh:
             if comment_tag is not None:
                 return "\n".join(
-                    r.strip("\n")
-                    for r in fh.readlines()
-                    if not r.startswith(comment_tag)
+                    r.strip("\n") for r in fh.readlines() if not r.startswith(comment_tag)
                 )
             return fh.read()
     except FileNotFoundError:
@@ -24,20 +29,24 @@ LICENSE = read_file_or_empty_str("LICENSE")
 VERSION = read_file_or_empty_str("VERSION", comment_tag="#")
 CURRENT_DIR = Path(__file__).parent
 SRC_DIR = CURRENT_DIR / "src"
+
+
 _DEBUG = False
 _DEBUG_LEVEL = 0
-# extra_compile_args = sysconfig.get_config_var('CFLAGS').split()
-extra_compile_args = ["-Wall", "-Wextra", "-std=c++17"]
-if _DEBUG:
-    extra_compile_args += ["-g3", "-O0", "-DDEBUG=%s" % _DEBUG_LEVEL, "-UNDEBUG"]
+if sys.platform.startswith("win32"):
+    extra_compile_args = []
 else:
-    extra_compile_args += ["-DNDEBUG", "-O3"]
+    extra_compile_args = ["-Wall", "-Wextra", "-std=c++17"]
+    if _DEBUG:
+        extra_compile_args += ["-g3", "-O0", f"-DDEBUG={_DEBUG_LEVEL}", "-UNDEBUG"]
+    else:
+        extra_compile_args += ["-DNDEBUG", "-O3"]
 
 ext_modules = [
     Pybind11Extension(
-        "interface",
-        sorted(str(file) for file in SRC_DIR.glob("*.cpp")),
-        include_dirs=[str(SRC_DIR)],
+        "_movici_geo_query",
+        sorted(str(file.relative_to(CURRENT_DIR)) for file in SRC_DIR.glob("*.cpp")),
+        include_dirs=[str(SRC_DIR), str(BOOST_DIR)],
         extra_compile_args=extra_compile_args,
     ),
 ]

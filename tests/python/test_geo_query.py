@@ -34,9 +34,7 @@ class TestPointQueries:
     def test_nearest_points_to_points(self, some_points, other_points):
         rv = GeoQuery(some_points).nearest_to(other_points)
         assert np.array_equal(rv.indices, [0, 0, 2, 1])
-        assert np.allclose(
-            rv.distances, [np.sqrt(2) / 10, 0.2, 0, np.sqrt(2) / 10], rtol=1.0e-6
-        )
+        assert np.allclose(rv.distances, [np.sqrt(2) / 10, 0.2, 0, np.sqrt(2) / 10], rtol=1.0e-6)
 
     def test_nearest_points_to_points_reverse(self, some_points, other_points):
         rv = GeoQuery(other_points).nearest_to(some_points)
@@ -50,21 +48,15 @@ class TestPointQueries:
     def test_nearest_lines_to_points(self, some_points, some_lines):
         rv = GeoQuery(some_lines).nearest_to(some_points)
         assert np.array_equal(rv.indices, [0, 0, 1])
-        assert np.allclose(
-            rv.distances, [0, 1, np.sqrt(0.8 * 0.8 + 0.1 * 0.1)], rtol=1.0e-6
-        )
+        assert np.allclose(rv.distances, [0, 1, np.sqrt(0.8 * 0.8 + 0.1 * 0.1)], rtol=1.0e-6)
 
     def test_points_to_lines(self):
         lines = LinestringGeometry(
-            np.array(
-                [[0, 0], [1, 0], [1, 1], [-1, 1], [-100, 0], [-101, 0]], dtype=float
-            ),
+            np.array([[0, 0], [1, 0], [1, 1], [-1, 1], [-100, 0], [-101, 0]], dtype=float),
             row_ptr=[0, 2, 4, 6],
         )
         points = PointGeometry(
-            np.array(
-                [[1.5, 0.4], [0.5, 0], [0.5, 1.5], [0, 1], [1.5, 0.5]], dtype=float
-            )
+            np.array([[1.5, 0.4], [0.5, 0], [0.5, 1.5], [0, 1], [1.5, 0.5]], dtype=float)
         )
 
         rv = GeoQuery(points).within_distance_of(lines, 0.1)
@@ -81,9 +73,7 @@ class TestPointQueries:
             row_ptr=[0, 2, 4, 6],
         )
         points = PointGeometry(
-            np.array(
-                [[1.5, 0.4], [0.5, 0], [0.5, 1.5], [0, 1], [1.5, 0.5]], dtype=float
-            )
+            np.array([[1.5, 0.4], [0.5, 0], [0.5, 1.5], [0, 1], [1.5, 0.5]], dtype=float)
         )
 
         rv = GeoQuery(points).within_distance_of(lines, 0.1)

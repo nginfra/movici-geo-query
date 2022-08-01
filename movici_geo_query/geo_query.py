@@ -1,7 +1,7 @@
 import typing as t
 
 import numpy as np
-from interface import CGeoQuery
+from _movici_geo_query import CGeoQuery
 
 from .geometry import Geometry
 
@@ -14,12 +14,8 @@ class QueryResult:
         distances: t.Optional[np.ndarray] = None,
     ) -> None:
         self.indices = np.asarray(indices, dtype=np.uint32)
-        self.row_ptr = (
-            np.asarray(row_ptr, dtype=np.uint32) if row_ptr is not None else None
-        )
-        self.distances = (
-            np.asarray(distances, dtype=np.float64) if distances is not None else None
-        )
+        self.row_ptr = np.asarray(row_ptr, dtype=np.uint32) if row_ptr is not None else None
+        self.distances = np.asarray(distances, dtype=np.float64) if distances is not None else None
 
     def iterate(self) -> t.Iterator[np.ndarray]:
         if self.row_ptr is None:
@@ -59,9 +55,7 @@ class GeoQuery:
 
     def __init__(self, target_geometry: Geometry) -> None:
         self._interface = (
-            CGeoQuery(*target_geometry.as_c_input())
-            if len(target_geometry) != 0
-            else None
+            CGeoQuery(*target_geometry.as_c_input()) if len(target_geometry) != 0 else None
         )
 
     def overlaps_with(self, geometry: Geometry) -> QueryResult:

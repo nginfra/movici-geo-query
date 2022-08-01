@@ -1,6 +1,14 @@
 unittest:
 	pytest -v tests
 
+unittest-c:
+	rm -rf build/ && \
+		mkdir build && \
+		cd build && \
+		cmake .. && \
+		make -j && \
+		./test
+  
 flake8:
 	flake8 movici_geo_query/
 
