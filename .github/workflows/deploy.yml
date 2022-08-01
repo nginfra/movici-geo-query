@@ -40,9 +40,8 @@ jobs:
           Invoke-WebRequest -Uri "https://boostorg.jfrog.io/artifactory/main/release/$Env:BOOST_VERSION_DOT/source/boost_$Env:BOOST_VERSION.tar.gz" -OutFile "boost.tar.gz"
 
           tar -xzf boost.tar.gz
-          mv "boost_$Env:BOOST_VERSION/boost" boost/
-          ls boost/
-          ls ${BOOST_DIR}
+          mkdir -p $Env:BOOST_DIR
+          mv "boost_$Env:BOOST_VERSION/boost/*" $Env:BOOST_DIR
 
       - name: Install boost (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -52,7 +51,8 @@ jobs:
           wget -q https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz -O boost.tar.gz
 
           tar -xzf boost.tar.gz
-          mv boost_${BOOST_VERSION}/boost boost/
+          mkdir -p ${BOOST_DIR}
+          mv boost_${BOOST_VERSION}/boost/* ${BOOST_DIR}
 
       - name: Install dependencies
         run: |
