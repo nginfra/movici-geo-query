@@ -23,7 +23,7 @@ jobs:
 
       - name: Run black
         run: |
-          black --check
+          black --check .
   flake8:
     runs-on: ubuntu-latest
     steps:
