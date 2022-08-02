@@ -5,7 +5,7 @@ from pathlib import Path
 from pybind11.setup_helpers import Pybind11Extension
 from setuptools import find_packages, setup
 
-# Compiling requires Boost. The compiler can try and find Boost at the usual locations
+# Compiling requires Boost header files. The compiler can try and find Boost at the usual locations
 # Alternatively the BOOST_DIR environment variable can be set, point to the directory with
 # the Boost header files
 BOOST_DIR = Path(os.environ.get("BOOST_DIR", "")).absolute().parent
@@ -25,7 +25,6 @@ def read_file_or_empty_str(file, comment_tag=None):
 
 REQUIREMENTS = read_file_or_empty_str("requirements.txt")
 README = read_file_or_empty_str("README.rst")
-LICENSE = read_file_or_empty_str("LICENSE")
 VERSION = read_file_or_empty_str("VERSION", comment_tag="#")
 CURRENT_DIR = Path(__file__).parent
 SRC_DIR = CURRENT_DIR / "src"
@@ -60,7 +59,7 @@ setup(
     ext_modules=ext_modules,
     author="NGinfra - Movici",
     author_email="movici@nginfra.nl",
-    license="LICENSE",
+    license="Movici Public License",
     packages=find_packages(),
     install_requires=REQUIREMENTS,
     python_requires=">=3.8",

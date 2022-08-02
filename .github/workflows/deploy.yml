@@ -2,10 +2,13 @@ name: Build and Deploy
 
 on:
   pull_request:
-  # workflow_run:
-  #   workflows: ["Main"]
-  #   types: 
-  #     - completed
+  workflow_run:
+    workflows: ["Main"]
+    branches:
+      - master
+      - main
+    types: 
+      - completed
 
 env:
   BOOST_DIR: "boost/boost"
@@ -13,8 +16,7 @@ env:
 
 jobs:
   build-wheels:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         include:
@@ -48,6 +50,7 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.python-version }}
           CIBW_ENVIRONMENT: BOOST_DIR=${{ env.BOOST_DIR }}
+          CIBW_TEST_COMMAND: pytest {project}/tests/python
         with:
           output-dir: dist/
 
