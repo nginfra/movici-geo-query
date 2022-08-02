@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-wheels:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         include:
