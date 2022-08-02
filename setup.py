@@ -24,7 +24,7 @@ def read_file_or_empty_str(file, comment_tag=None):
 
 
 REQUIREMENTS = read_file_or_empty_str("requirements.txt")
-README = read_file_or_empty_str("README.md")
+README = read_file_or_empty_str("README.rst")
 LICENSE = read_file_or_empty_str("LICENSE")
 VERSION = read_file_or_empty_str("VERSION", comment_tag="#")
 CURRENT_DIR = Path(__file__).parent
@@ -56,10 +56,30 @@ setup(
     version=VERSION,
     description="Geospatial queries powered by Boost Geom",
     long_description=README,
+    long_description_content_type="text/x-rst",
     ext_modules=ext_modules,
-    author="Eelco Naarding",
-    author_email="eelco.naarding@gmail.com",
-    license=LICENSE,
+    author="NGinfra - Movici",
+    author_email="movici@nginfra.nl",
+    license="LICENSE",
     packages=find_packages(),
     install_requires=REQUIREMENTS,
+    python_requires=">=3.8",
+    test_suite="tests",
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: Free for non-commercial use",
+        "License :: Other/Proprietary License",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3 :: Only",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Scientific/Engineering :: GIS",
+    ],
+    project_urls={"Documentation": "https://docs.movici.nl/"},
 )
