@@ -50,6 +50,7 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.python-version }}
           CIBW_ENVIRONMENT: BOOST_DIR=${{ env.BOOST_DIR }}
+          CIBW_BEFORE_TEST: pip install pytest
           CIBW_TEST_COMMAND: pytest {project}/tests/python
         with:
           output-dir: dist/
