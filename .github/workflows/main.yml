@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master
+      - main
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
 
 env:
   BOOST_DIR: "boost/boost"
@@ -28,6 +31,7 @@ jobs:
       - name: Run black
         run: |
           black --check .
+  
   flake8:
     runs-on: ubuntu-latest
     steps:
@@ -45,6 +49,7 @@ jobs:
       - name: Run Flake8
         run: |
           make flake8
+  
   tests-c:
     runs-on: ubuntu-latest
     steps:
@@ -71,42 +76,92 @@ jobs:
           ./test
           cd ..
 
-  tests-python:
+  build-wheels-and-test:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            python-version: "3.8"
+            python-version: "cp38-manylinux_x86_64"
           - os: ubuntu-latest
-            python-version: "3.9"
+            python-version: "cp39-manylinux_x86_64"
           - os: ubuntu-latest
-            python-version: "3.10"
+            python-version: "cp310-manylinux_x86_64"
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "cp38-win_amd64"
+          - os: windows-latest
+            python-version: "cp39-win_amd64"
+          - os: windows-latest
+            python-version: "cp310-win_amd64"
 
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
 
       - name: Install Boost
         uses: ./.github/actions/install-boost
         with:
           os: ${{ matrix.os }}
           boost-dir: ${{ env.BOOST_DIR }}
+      
+      
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.8.0
+        env:
+          CIBW_BUILD: ${{ matrix.python-version }}
+          CIBW_ENVIRONMENT: BOOST_DIR=${{ env.BOOST_DIR }}
+          CIBW_BEFORE_TEST: pip install pytest
+          CIBW_TEST_COMMAND: pytest {project}/tests/python
+        with:
+          output-dir: dist/
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements-dev.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./dist/*
+          name: 'distributions'
+  
+  build-sdist:
+    runs-on: ubuntu-latest
+    env:
+      SDIST_FORMATS: gztar
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Build and install
-        run: |
-          pip install .
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
 
-      - name: Test with pytest
+      - name: Install build dependencies
         run: |
-          pytest tests/python
+          pip install pybind11
+
+      - name: Build source distribution
+        run: |
+          python setup.py sdist --formats ${SDIST_FORMATS} --dist-dir dist/
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./dist/*
+          name: distributions
+  
+  deploy:
+    # We only want to run the deploy job if we've just created a version tag. in `on.push.tags`
+    # we've specified to only this workflow on specific tags (and the main branch and pull
+    # requests), so here we only need to check if we've been triggered from a tag
+    if: startsWith(github.ref, 'refs/tags')
+    environment: Test PyPI
+    runs-on: ubuntu-latest
+    needs: [build-wheels-and-test, build-sdist]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: distributions
+          path: dist/
+      
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository_url: ${{ secrets.PYPI_REPOSITORY_URL }}
+      
