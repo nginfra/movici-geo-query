@@ -47,7 +47,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.8.0
         env:
           CIBW_BUILD: ${{ matrix.python-version }}
-          CIBW_ENVIRONMENT: BOOSTDIR=${{ env.BOOST_DIR }}
+          CIBW_ENVIRONMENT: BOOSTDIR=/project/${{ env.BOOST_DIR }}
         with:
           output-dir: dist/
 
