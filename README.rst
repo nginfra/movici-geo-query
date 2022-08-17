@@ -30,8 +30,9 @@ Getting Started
 
 Installation
 ------------
-Movici Geo Query binaries are currently only available for Linux (manylinux), but Windows and Mac
-builds are coming up soon. Installation can be done using ``pip install movici-geo-query``
+Movici Geo Query binary wheels are currently available for Linux (manylinux) and Windows. There are
+currently no concrete plans for Mac builds. If you'd like to have macos binaries, please create an issue
+for it. Installation can be done using ``pip install movici-geo-query``
 
 
 .. _Building from source:
