@@ -29,7 +29,6 @@ def some_lines():
         row_ptr=[0, 3, 5],
     )
 
-
 class TestPointQueries:
     def test_nearest_points_to_points(self, some_points, other_points):
         rv = GeoQuery(some_points).nearest_to(other_points)

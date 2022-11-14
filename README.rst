@@ -63,6 +63,11 @@ Now you can clone, compile and install from source:
   git clone https://github.com/nginfra/movici-geo-query.git
   pip3 install movici-geo-query/
 
+To specify a compiler, use the ``CC`` environment variable:
+
+.. code-block:: bash
+
+  CC=g++7 pip install movici-geo-query/
 
 
 Developing Movici Geo Query
