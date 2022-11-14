@@ -34,7 +34,7 @@ install-dev:
 	pip install -r requirements.txt
 	python setup.py develop
 
-test-all: unittest flake8 coverage bandit safety pylint
+test-all: unittest flake8 coverage bandit safety
 
 level=patch
 export level

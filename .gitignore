@@ -3,10 +3,6 @@
 /*.egg-info/
 pip-wheel-metadata/
 
-# ide project settings
-/.idea
-.vscode
-
 # Created by GitEye
 /.project
 
@@ -40,8 +36,4 @@ pylint.txt
 # bandit
 bandit-report.json
 
-secrets.yaml
-
-# tests tmp
-ae_project_dir
-ae_project
+secrets*
