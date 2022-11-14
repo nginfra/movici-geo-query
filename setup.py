@@ -60,7 +60,7 @@ setup(
     author="NGinfra - Movici",
     author_email="movici@nginfra.nl",
     license="Movici Public License",
-    packages=find_packages(),
+    packages=find_packages(include=("movici_simulation_core.*")),
     install_requires=REQUIREMENTS,
     python_requires=">=3.8",
     test_suite="tests",
