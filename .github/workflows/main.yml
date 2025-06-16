@@ -89,6 +89,8 @@ jobs:
             python-version: "cp310-manylinux_x86_64"
           - os: ubuntu-latest
             python-version: "cp311-manylinux_x86_64"
+          - os: ubuntu-latest
+            python-version: "cp312-manylinux_x86_64"
           - os: windows-latest
             python-version: "cp38-win_amd64"
           - os: windows-latest
@@ -97,6 +99,8 @@ jobs:
             python-version: "cp310-win_amd64"
           - os: windows-latest
             python-version: "cp311-win_amd64"
+          - os: windows-latest
+            python-version: "cp312-win_amd64"
 
     runs-on: ${{ matrix.os }}
 

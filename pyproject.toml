@@ -1,19 +1,117 @@
 [build-system]
+requires = ["setuptools>=61.0", "wheel", "pybind11>=2.11.0"]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=42", "wheel", "pybind11~=2.10.1"]
+
+[project]
+name = "movici-geo-query"
+version = "1.2.0"
+description = "Geospatial queries powered by Boost Geometry"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {text = "Movici Public License"}
+authors = [
+    {name = "NGinfra - Movici", email = "movici@nginfra.nl"}
+]
+maintainers = [
+    {name = "NGinfra - Movici", email = "movici@nginfra.nl"}
+]
+requires-python = ">=3.8,<3.13"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: Free for non-commercial use",
+    "License :: Other/Proprietary License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+keywords = ["geospatial", "rtree", "spatial-index", "boost-geometry", "gis"]
+
+# Core dependencies
+dependencies = [
+    "numpy>=1.20.3",
+]
+
+# Optional dependencies
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    
+    # Code quality
+    "bandit>=1.7.0",
+    "pylint>=2.15.0",
+    "safety>=2.0.0",
+    "coverage>=7.0.0",
+    "flake8>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://www.movici.nl/"
+Documentation = "https://docs.movici.nl/"
+Repository = "https://github.com/nginfra/movici-geo-query/"
+"Bug Tracker" = "https://github.com/nginfra/movici-geo-query/issues"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+# No exclusions needed for this simple package structure
 
 [tool.black]
-exclude = '''(
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
 /(
-  | \.direnv
-  | \.eggs
+  # directories
+  \.eggs
   | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
   | \.venv
-  | _build
   | build
   | dist
 )/
-)
 '''
-include = '\.pyi?$'
-line-length = 99
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.coverage.run]
+source = ["movici_geo_query"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101"]  # Skip assert_used
