@@ -1,13 +1,13 @@
+"""Benchmark spatial query performance."""
+
 import contextlib
-import logging
 import tracemalloc
 from timeit import default_timer as timer
 
 import numpy as np
+
 from movici_geo_query.geo_query import GeoQuery
-from movici_geo_query.geometry import (
-    PointGeometry,
-)
+from movici_geo_query.geometry import PointGeometry
 
 
 def get_grid_points(nb_x_elem=1000, nb_y_elem=1000):
@@ -26,7 +26,7 @@ def run(func, nb_runs=10, nb_points_sqrt=1000):
     print(f"Testing runtime for {nb_points_sqrt} X {nb_points_sqrt} grid")
     total = 0
     points = get_grid_points(nb_points_sqrt)
-    for i in range(nb_runs):
+    for _ in range(nb_runs):
         start = timer()
         func(points, points)
         end = timer()
@@ -58,7 +58,7 @@ def trace(enable=True):
 if __name__ == "__main__":
     TRACE = True
     with trace(TRACE):
-        print(f"-- nearest_to --")
+        print("-- nearest_to --")
         run(nearest, 10, 10)
-        print(f"-- within_distance_of --")
+        print("-- within_distance_of --")
         run(in_radius, 10, 10)

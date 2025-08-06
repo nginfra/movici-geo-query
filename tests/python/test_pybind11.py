@@ -1,5 +1,8 @@
-from _movici_geo_query import CGeoQuery
+"""Tests for pybind11 C++ bindings."""
+
 import numpy as np
+
+from _movici_geo_query import CGeoQuery
 
 
 def test_pybind11_input_class_and_mapping():

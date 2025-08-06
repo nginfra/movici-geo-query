@@ -1,4 +1,4 @@
-name: Main
+name: CI
 
 on:
   pull_request:
@@ -14,179 +14,258 @@ env:
   BOOST_VERSION: 1_79_0
 
 jobs:
-  black:
+  # Code quality checks
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Build and install
+      - name: Install dependencies
         run: |
-          pip install black
+          python -m pip install --upgrade pip
+          pip install black flake8 isort mypy
 
       - name: Run black
-        run: |
-          black --check .
+        run: black --check .
 
-  flake8:
-    runs-on: ubuntu-latest
+      - name: Run isort
+        run: isort --check-only .
+
+      - name: Run flake8
+        run: make flake8
+
+      - name: Run mypy
+        run: mypy movici_geo_query --ignore-missing-imports
+
+  # C++ tests
+  test-cpp:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+      - name: Cache Boost
+        uses: actions/cache@v4
         with:
-          python-version: "3.11"
+          path: |
+            ~/boost_cache
+            boost/
+          key: ${{ runner.os }}-boost-${{ env.BOOST_VERSION }}
 
-      - name: Build and install
+      - name: Install Boost (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          pip install flake8
+          if [ ! -d ~/boost_cache ]; then
+            sudo apt-get update
+            sudo apt-get install -y libboost-all-dev
+            mkdir -p ~/boost_cache
+            touch ~/boost_cache/installed
+          fi
 
-      - name: Run Flake8
+      - name: Install Boost (macOS)
+        if: matrix.os == 'macos-latest'
         run: |
-          make flake8
+          if [ ! -d ~/boost_cache ]; then
+            brew install boost
+            mkdir -p ~/boost_cache
+            touch ~/boost_cache/installed
+          fi
 
-  tests-c:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.11"
-
-      - name: Install boost
+      - name: Install Boost (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
         run: |
-          sudo apt-get update && sudo apt-get install -y libboost-dev
+          if [ ! -d boost ]; then
+            curl -L https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_${BOOST_VERSION}.tar.gz | tar xz
+            mv boost_${BOOST_VERSION} boost
+          fi
 
-      - name: Setup cmake
-        uses: jwlawson/actions-setup-cmake@v1.12
-
-      - name: Test C-code
+      - name: Build and test C++
         run: |
           mkdir -p build
           cd build
-          cmake ..
-          make -j
-          ./test
-          cd ..
+          cmake .. -DBUILD_TESTING=ON
+          cmake --build . --config Release
+          ctest -C Release --output-on-failure
 
-  build-wheels-and-test:
+  # Python tests across multiple versions
+  test-python:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            python-version: "cp38-manylinux_x86_64"
-          - os: ubuntu-latest
-            python-version: "cp39-manylinux_x86_64"
-          - os: ubuntu-latest
-            python-version: "cp310-manylinux_x86_64"
-          - os: ubuntu-latest
-            python-version: "cp311-manylinux_x86_64"
-          - os: ubuntu-latest
-            python-version: "cp312-manylinux_x86_64"
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        exclude:
+          # Skip some combinations to reduce CI time
           - os: windows-latest
-            python-version: "cp38-win_amd64"
+            python-version: "3.8"
           - os: windows-latest
-            python-version: "cp39-win_amd64"
-          - os: windows-latest
-            python-version: "cp310-win_amd64"
-          - os: windows-latest
-            python-version: "cp311-win_amd64"
-          - os: windows-latest
-            python-version: "cp312-win_amd64"
+            python-version: "3.9"
+          - os: macos-latest
+            python-version: "3.8"
 
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      - name: Cache Boost
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/boost_cache
+            boost/
+          key: ${{ runner.os }}-boost-${{ env.BOOST_VERSION }}
+
+      - name: Install Boost (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if [ ! -d ~/boost_cache ]; then
+            sudo apt-get update
+            sudo apt-get install -y libboost-all-dev
+            mkdir -p ~/boost_cache
+            touch ~/boost_cache/installed
+          fi
+
+      - name: Install Boost (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          if [ ! -d ~/boost_cache ]; then
+            brew install boost
+            mkdir -p ~/boost_cache
+            touch ~/boost_cache/installed
+          fi
+
+      - name: Install Boost (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          if [ ! -d boost ]; then
+            curl -L https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_${BOOST_VERSION}.tar.gz | tar xz
+            mv boost_${BOOST_VERSION} boost
+          fi
+
+      - name: Install package and test dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -e ".[dev]"
+
+      - name: Run Python tests
+        run: |
+          pytest tests/python -v --tb=short
+
+      - name: Run coverage
+        if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+        run: |
+          pytest --cov=movici_geo_query --cov-report=xml --cov-report=term tests/python
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  # Build wheels for distribution
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Install Boost
-        uses: ./.github/actions/install-boost
-        with:
-          os: ${{ matrix.os }}
-          boost-dir: ${{ env.BOOST_DIR }}
-
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.2
-        env:
-          CIBW_BUILD: ${{ matrix.python-version }}
-          CIBW_ENVIRONMENT: BOOST_DIR=${{ env.BOOST_DIR }}
-          CIBW_BEFORE_TEST: pip install pytest
-          CIBW_TEST_COMMAND: pytest {project}/tests/python
-        with:
-          output-dir: dist/
-
-      - uses: actions/upload-artifact@v3
-        with:
-          path: ./dist/*
-          name: "distributions"
-
-  build-sdist:
-    if: startsWith(github.ref, 'refs/tags')
-    runs-on: ubuntu-latest
-    env:
-      SDIST_FORMATS: gztar
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install build dependencies
-        run: |
-          pip install pybind11
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.16.5
 
-      - name: Build source distribution
-        run: |
-          python setup.py sdist --formats ${SDIST_FORMATS} --dist-dir dist/
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-musllinux_* *-win32 *-manylinux_i686"
+          CIBW_ARCHS_MACOS: "x86_64 arm64"
+          CIBW_ARCHS_LINUX: "x86_64"
+          CIBW_BEFORE_BUILD_LINUX: |
+            yum install -y boost-devel || apt-get update && apt-get install -y libboost-all-dev
+          CIBW_BEFORE_BUILD_MACOS: brew install boost
+          CIBW_BEFORE_BUILD_WINDOWS: |
+            curl -L https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz | tar xz
+            move boost_1_79_0 boost
+            set BOOST_DIR=%CD%\boost
+          CIBW_TEST_COMMAND: pytest {package}/tests/python -v
+          CIBW_TEST_REQUIRES: pytest
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          path: ./dist/*
-          name: distributions
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
 
-  all-green-before-merge: # This job does nothing and is only used for the branch protection
-    if: always()
-
-    needs:
-      - black
-      - flake8
-      - tests-c
-      - build-wheels-and-test
-
+  # Build source distribution
+  build-sdist:
+    name: Build source distribution
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
     steps:
-      - name: Decide whether the needed jobs succeeded or failed
-        uses: re-actors/alls-green@release/v1
-        with:
-          jobs: ${{ toJSON(needs) }}
+      - uses: actions/checkout@v4
 
-  deploy:
-    # We only want to run the deploy job if we've just created a version tag. in `on.push.tags`
-    # we've specified to only this workflow on specific tags (and the main branch and pull
-    # requests), so here we only need to check if we've been triggered from a tag
-    if: startsWith(github.ref, 'refs/tags')
-    environment: PyPI
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build sdist
+        run: |
+          python -m pip install --upgrade pip setuptools wheel build
+          python -m build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  # Publish to PyPI
+  publish:
+    needs: [build-wheels, build-sdist, test-python, test-cpp]
     runs-on: ubuntu-latest
-    needs: [build-wheels-and-test, build-sdist]
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: distributions
-          path: dist/
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
-      - name: Publish package to PyPI
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          merge-multiple: true
+          path: dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: dist
+
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-          repository_url: ${{ secrets.PYPI_REPOSITORY_URL }}
+          skip_existing: true

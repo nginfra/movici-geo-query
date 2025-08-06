@@ -1,3 +1,5 @@
+"""Build configuration for movici-geo-query C++ extensions."""
+
 import os
 import sys
 from pathlib import Path
@@ -21,18 +23,19 @@ if sys.platform.startswith("win32"):
 else:
     # Use Python's exact compiler configuration for ABI compatibility
     import sysconfig
-    cflags = sysconfig.get_config_var('CFLAGS') or ''
-    ldflags = sysconfig.get_config_var('LDFLAGS') or ''
-    
+
+    cflags = sysconfig.get_config_var("CFLAGS") or ""
+    ldflags = sysconfig.get_config_var("LDFLAGS") or ""
+
     extra_compile_args = ["-Wall", "-Wextra", "-std=c++17"]
     # Add Python's flags for ABI compatibility
     extra_compile_args.extend(["-fno-strict-overflow", "-fPIC"])
-    
+
     extra_link_args = []
-    # Add Python's linking flags  
+    # Add Python's linking flags
     if ldflags:
         extra_link_args.extend(ldflags.split())
-    
+
     if _DEBUG:
         extra_compile_args += ["-g3", "-O0", f"-DDEBUG={_DEBUG_LEVEL}", "-UNDEBUG"]
     else:

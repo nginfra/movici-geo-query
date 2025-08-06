@@ -1,6 +1,9 @@
+"""High-performance spatial query engine using R-tree indexing."""
+
 import typing as t
 
 import numpy as np
+
 from _movici_geo_query import CGeoQuery
 
 from .geometry import Geometry
@@ -8,12 +11,13 @@ from .geometry import Geometry
 
 class QueryResult:
     """Container for spatial query results.
-    
+
     Attributes:
         indices: Array of indices matching the query criteria
         row_ptr: Optional CSR-style row pointer array for grouped results
         distances: Optional array of distances (for nearest neighbor queries)
     """
+
     def __init__(
         self,
         indices: np.ndarray,
@@ -59,14 +63,15 @@ DISTANCE = 4
 
 class GeoQuery:
     """High-performance spatial query engine using R-tree indexing.
-    
+
     This class creates a spatial index for efficient queries against a target geometry.
     Supports overlap detection, intersection tests, nearest neighbor searches, and
     distance-based queries.
-    
+
     Args:
         target_geometry: The geometry to index and query against
     """
+
     _interface: t.Optional[CGeoQuery] = None
 
     def __init__(self, target_geometry: Geometry) -> None:
@@ -76,10 +81,10 @@ class GeoQuery:
 
     def overlaps_with(self, geometry: Geometry) -> QueryResult:
         """Find all target geometries that overlap with the query geometry.
-        
+
         Args:
             geometry: Query geometry to test for overlaps
-            
+
         Returns:
             QueryResult containing indices of overlapping geometries
         """
@@ -87,10 +92,10 @@ class GeoQuery:
 
     def intersects_with(self, geometry: Geometry) -> QueryResult:
         """Find all target geometries that intersect with the query geometry.
-        
+
         Args:
             geometry: Query geometry to test for intersections
-            
+
         Returns:
             QueryResult containing indices of intersecting geometries
         """
@@ -98,10 +103,10 @@ class GeoQuery:
 
     def nearest_to(self, geometry: Geometry) -> QueryResult:
         """Find the nearest target geometry to each query geometry.
-        
+
         Args:
             geometry: Query geometry to find nearest neighbors for
-            
+
         Returns:
             QueryResult containing indices and distances to nearest geometries
         """
@@ -109,17 +114,17 @@ class GeoQuery:
 
     def within_distance_of(self, geometry: Geometry, distance: float) -> QueryResult:
         """Find all target geometries within a specified distance of the query geometry.
-        
+
         Args:
             geometry: Query geometry to search around
             distance: Maximum distance threshold
-            
+
         Returns:
             QueryResult containing indices of geometries within distance
         """
         return self.query(DISTANCE, geometry, distance=distance)
 
-    def query(self, query_type: int, geometry: Geometry, **kwargs):
+    def query(self, query_type: int, geometry: Geometry, **kwargs) -> QueryResult:
         if self._interface is None or geometry == 0:
             return empty_result(geometry)
 

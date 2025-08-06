@@ -6,11 +6,11 @@ including overlap detection, intersection tests, nearest neighbor searches, and 
 
 from .geo_query import GeoQuery, QueryResult
 from .geometry import (
+    ClosedPolygonGeometry,
     Geometry,
-    PointGeometry,
     LinestringGeometry,
     OpenPolygonGeometry,
-    ClosedPolygonGeometry,
+    PointGeometry,
 )
 
 __all__ = [
