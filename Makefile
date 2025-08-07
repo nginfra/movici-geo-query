@@ -9,8 +9,8 @@ unittest-c:
 		make -j && \
 		./geo_query_test
 
-flake8:
-	flake8 movici_geo_query/
+ruff:
+	ruff check .
 
 coverage:
 	pytest --cov `cd tests && python -c "import os, movici_geo_query; print(os.path.dirname(movici_geo_query.__file__))"` --cov-report=term-missing --cov-report=xml
@@ -31,7 +31,7 @@ install:
 install-dev:
 	pip install -e ".[dev]"
 
-test-all: unittest flake8 coverage bandit safety
+test-all: unittest ruff coverage bandit safety
 
 level=patch
 export level

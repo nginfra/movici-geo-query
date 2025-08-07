@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -23,14 +23,13 @@ repos:
       - id: black
         language_version: python3
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+  # Python linting (ruff replaces flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
     hooks:
-      - id: flake8
-        args: ['--config=.flake8', '--extend-ignore=D']
-        additional_dependencies:
-          - flake8-docstrings
-          - flake8-bugbear
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
