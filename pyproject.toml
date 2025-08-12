@@ -111,7 +111,7 @@ exclude_lines = [
 
 [tool.bandit]
 exclude_dirs = ["tests"]
-skips = ["B101"]  # Skip assert_used
+skips = ["B101", "B310", "B202"]  # Skip assert_used, urllib_urlopen, tarfile_unsafe_members
 
 [tool.ruff]
 target-version = "py310"

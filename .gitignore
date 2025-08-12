@@ -1,4 +1,5 @@
 /build/
+/build_boost/
 /dist/
 /*.egg-info/
 pip-wheel-metadata/
