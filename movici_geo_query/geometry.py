@@ -1,6 +1,5 @@
 """Geometry classes for spatial query operations."""
 
-import typing as t
 from abc import abstractmethod
 
 import numpy as np
@@ -17,7 +16,7 @@ class Geometry:
     """
 
     points: np.ndarray
-    row_ptr: t.Optional[np.ndarray]
+    row_ptr: np.ndarray | None
     type: str
     csr: bool = True
 
@@ -36,8 +35,10 @@ class Geometry:
     def _verify(self):
         raise NotImplementedError
 
-    def as_c_input(self) -> t.Tuple[np.ndarray, np.ndarray, str]:
+    def as_c_input(self) -> tuple[np.ndarray, np.ndarray, str]:
         row_ptr = self.row_ptr if self.csr else np.array([0], dtype=np.uint32)
+        if row_ptr is None:
+            row_ptr = np.array([0], dtype=np.uint32)
         return self.points, row_ptr, self.type
 
 

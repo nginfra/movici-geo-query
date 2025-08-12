@@ -3,7 +3,6 @@
 import typing as t
 
 import numpy as np
-
 from _movici_geo_query import CGeoQuery
 
 from .geometry import Geometry
@@ -21,8 +20,8 @@ class QueryResult:
     def __init__(
         self,
         indices: np.ndarray,
-        row_ptr: t.Optional[np.ndarray] = None,
-        distances: t.Optional[np.ndarray] = None,
+        row_ptr: np.ndarray | None = None,
+        distances: np.ndarray | None = None,
     ) -> None:
         self.indices = np.asarray(indices, dtype=np.uint32)
         self.row_ptr = np.asarray(row_ptr, dtype=np.uint32) if row_ptr is not None else None
@@ -36,6 +35,7 @@ class QueryResult:
             yield from self._iterate()
 
     def _iterate(self) -> t.Iterator[np.ndarray]:
+        assert self.row_ptr is not None
         for i in range(len(self.row_ptr) - 1):
             start = self.row_ptr[i]
             end = self.row_ptr[i + 1]
@@ -72,7 +72,7 @@ class GeoQuery:
         target_geometry: The geometry to index and query against
     """
 
-    _interface: t.Optional[CGeoQuery] = None
+    _interface: CGeoQuery | None = None
 
     def __init__(self, target_geometry: Geometry) -> None:
         self._interface = (

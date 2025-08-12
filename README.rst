@@ -74,15 +74,12 @@ Developing Movici Geo Query
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Developing Movici Geo Query assumes you're developing on Linux using a modern C++ compiler that
 support C++17, such as Clang>=5. We have tests both in C++ and in Python. Supported Python versions
-are 3.8 and higher. It also requires Boost.geometry (see `Building from source`_)
+are 3.10 and higher. It also requires Boost.geometry (see `Building from source`_)
 
 .. code-block:: bash
 
-  # install the dev requirements
-  pip3 install -r requirements-dev.txt
-
-  # install the package in editable mode
-  pip3 install -e -v .
+  # install the package in editable mode with dev dependencies
+  pip3 install -e ".[dev]"
 
   # run the c test suite
   mkdir build
