@@ -87,22 +87,3 @@ exclude = '''(
 minversion = "7.0"
 addopts = "--strict-markers"
 testpaths = ["tests"]
-
-[tool.coverage.run]
-source = ["movici_geo_query"]
-omit = [
-    "*/tests/*",
-    "*/test_*",
-    "setup.py",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if self.debug:",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if 0:",
-    "if __name__ == .__main__.:",
-]
