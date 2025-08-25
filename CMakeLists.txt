@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(boost_geo_query LANGUAGES CXX)
 
+# Boost version configuration
+set(BOOST_VERSION "1.79.0")
+string(REPLACE "." "_" BOOST_VERSION_UNDERSCORE "${BOOST_VERSION}")
+set(BOOST_ZIP_HASH "SHA256=3634f9a85759311f321e587eace21799c0d0c946ff933e477a2f98885c54bbff")
+set(BOOST_TAR_HASH "SHA256=273f1be93238a068aba4f9735a4a2b003019af067b9c183ed227780b8f36062c")
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,7 +24,7 @@ if(DEFINED ENV{BOOST_DIR})
     message(STATUS "Using Boost from BOOST_DIR: ${Boost_INCLUDE_DIRS}")
 else()
     # Try to find Boost locally first
-    find_package(Boost 1.79.0 QUIET COMPONENTS)
+    find_package(Boost ${BOOST_VERSION} QUIET COMPONENTS)
 endif()
 
 if(NOT Boost_FOUND)
@@ -29,15 +35,15 @@ if(NOT Boost_FOUND)
     if(WIN32)
         FetchContent_Declare(
             Boost
-            URL https://archives.boost.io/release/1.79.0/source/boost_1_79_0.zip
-            URL_HASH SHA256=3634f9a85759311f321e587eace21799c0d0c946ff933e477a2f98885c54bbff
+            URL https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.zip
+            URL_HASH ${BOOST_ZIP_HASH}
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
     else()
         FetchContent_Declare(
             Boost
-            URL https://archives.boost.io/release/1.79.0/source/boost_1_79_0.tar.gz
-            URL_HASH SHA256=273f1be93238a068aba4f9735a4a2b003019af067b9c183ed227780b8f36062c
+            URL https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.tar.gz
+            URL_HASH ${BOOST_TAR_HASH}
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
     endif()
