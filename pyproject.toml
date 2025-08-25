@@ -85,7 +85,7 @@ exclude = '''(
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -q --strict-markers"
+addopts = "--strict-markers"
 testpaths = ["tests"]
 
 [tool.coverage.run]
