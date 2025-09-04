@@ -180,6 +180,7 @@ jobs:
         with:
           pattern: dist-*
           path: dist/
+          merge-multiple: true
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
