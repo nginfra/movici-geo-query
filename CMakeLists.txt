@@ -1,34 +1,103 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(boost_geo_query)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+project(boost_geo_query LANGUAGES CXX)
 
+# Boost version configuration
+set(BOOST_VERSION "1.79.0")
+string(REPLACE "." "_" BOOST_VERSION_UNDERSCORE "${BOOST_VERSION}")
+set(BOOST_ZIP_HASH "SHA256=3634f9a85759311f321e587eace21799c0d0c946ff933e477a2f98885c54bbff")
+set(BOOST_TAR_HASH "SHA256=273f1be93238a068aba4f9735a4a2b003019af067b9c183ed227780b8f36062c")
 
-set(Boost_USE_STATIC_LIBS OFF) 
-set(Boost_USE_MULTITHREADED ON)  
-set(Boost_USE_STATIC_RUNTIME OFF) 
-find_package(Boost 1.71.0 REQUIRED
-    COMPONENTS
-    ) 
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-include_directories(${Boost_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/tests/c)
-# link_libraries(${Boost_LIBRARIES})
-
-
-if (WIN32)
-  add_definitions( -DBOOST_ALL_NO_LIB )
-  add_definitions( -DBOOST_ALL_DYN_LINK )
+# Handle modern CMake policy for Boost
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
 endif()
 
-set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/python_geo_query.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/c/boost_geo_query_test.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/c/python_geo_query_test.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/c/test_main.cpp
+# Check if BOOST_DIR is set (e.g., in CI)
+if(DEFINED ENV{BOOST_DIR})
+    set(Boost_INCLUDE_DIRS "$ENV{BOOST_DIR}")
+    set(Boost_FOUND TRUE)
+    message(STATUS "Using Boost from BOOST_DIR: ${Boost_INCLUDE_DIRS}")
+else()
+    # Try to find Boost locally first
+    find_package(Boost ${BOOST_VERSION} QUIET COMPONENTS)
+endif()
+
+if(NOT Boost_FOUND)
+    message(STATUS "Boost not found locally, downloading via FetchContent...")
+    include(FetchContent)
+    
+    # Use appropriate archive format for the platform
+    if(WIN32)
+        FetchContent_Declare(
+            Boost
+            URL https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.zip
+            URL_HASH ${BOOST_ZIP_HASH}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        )
+    else()
+        FetchContent_Declare(
+            Boost
+            URL https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.tar.gz
+            URL_HASH ${BOOST_TAR_HASH}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        )
+    endif()
+    
+    set(BOOST_INCLUDE_LIBRARIES geometry)
+    set(BOOST_ENABLE_CMAKE ON)
+    FetchContent_MakeAvailable(Boost)
+    
+    # Create interface target for compatibility
+    add_library(boost_headers INTERFACE)
+    target_include_directories(boost_headers INTERFACE 
+        ${boost_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src 
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/c
+    )
+else()
+    # Use system Boost
+    add_library(boost_headers INTERFACE)
+    target_include_directories(boost_headers INTERFACE 
+        ${Boost_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src 
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/c
+    )
+endif()
+
+# Windows-specific definitions
+if(WIN32)
+    add_definitions(-DBOOST_ALL_NO_LIB)
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+endif()
+
+# Test sources
+set(TEST_SOURCES
+    src/python_geo_query.cpp
+    tests/c/boost_geo_query_test.cpp
+    tests/c/python_geo_query_test.cpp
+    tests/c/test_main.cpp
 )
 
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++17 -g -Wall -DNOPYBIND")
-# set(CMAKE_CXX_FLAGS  "-O2 -Wall -DNOPYBIND")
+# Create test executable
+add_executable(test ${TEST_SOURCES})
 
-add_executable(test ${SOURCES})
+# Set compiler flags
+target_compile_definitions(test PRIVATE -DNOPYBIND)
+target_compile_options(test PRIVATE 
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
+
+# Link with Boost
+target_link_libraries(test PRIVATE boost_headers)
+
+# Enable debug info in debug builds
+target_compile_options(test PRIVATE $<$<CONFIG:Debug>:-g>)
 
 
 
