@@ -17,10 +17,10 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -35,10 +35,10 @@ jobs:
   flake8:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -53,10 +53,10 @@ jobs:
   tests-c:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -101,7 +101,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Boost
         uses: ./.github/actions/install-boost
@@ -119,10 +119,10 @@ jobs:
         with:
           output-dir: dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./dist/*
-          name: "distributions"
+          name: dist-${{ matrix.python-version }}-${{ matrix.os }}
 
   build-sdist:
     if: startsWith(github.ref, 'refs/tags')
@@ -130,10 +130,10 @@ jobs:
     env:
       SDIST_FORMATS: gztar
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -145,10 +145,10 @@ jobs:
         run: |
           python setup.py sdist --formats ${SDIST_FORMATS} --dist-dir dist/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./dist/*
-          name: distributions
+          name: dist-sdist
 
   all-green-before-merge: # This job does nothing and is only used for the branch protection
     if: always()
@@ -176,10 +176,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-wheels-and-test, build-sdist]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: distributions
+          pattern: dist-*
           path: dist/
+          merge-multiple: true
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
