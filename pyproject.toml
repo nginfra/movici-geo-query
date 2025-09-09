@@ -61,9 +61,6 @@ Documentation = "https://docs.movici.nl/"
 Repository = "https://github.com/nginfra/movici-geo-query/"
 "Bug Tracker" = "https://github.com/nginfra/movici-geo-query/issues"
 
-[tool.setuptools]
-zip-safe = false
-
 [tool.setuptools.packages.find]
 include = ["movici_geo_query*"]
 
