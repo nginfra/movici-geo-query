@@ -1,7 +1,0 @@
-pytest
-bandit
-pylint
-safety
-coverage
-pytest-cov
-flake8

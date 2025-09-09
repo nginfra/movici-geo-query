@@ -1,8 +1,72 @@
 [build-system]
-build-backend = "setuptools.build_meta"
 requires = ["setuptools>=42", "wheel", "pybind11~=2.10.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "movici-geo-query"
+version = "1.2.0"
+description = "Geospatial queries powered by Boost Geom"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {text = "Movici Public License"}
+authors = [
+    {name = "NGinfra - Movici", email = "movici@nginfra.nl"}
+]
+maintainers = [
+    {name = "NGinfra - Movici", email = "movici@nginfra.nl"}
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: Free for non-commercial use",
+    "License :: Other/Proprietary License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+keywords = ["geospatial", "rtree", "spatial-index", "boost-geometry", "gis"]
+
+# Core dependencies
+dependencies = [
+    "numpy>=1.20.3",
+]
+
+# Optional dependencies
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    
+    # Code quality
+    "bandit>=1.7.0",
+    "pylint>=2.15.0",
+    "safety>=2.0.0",
+    "coverage>=7.0.0",
+    "flake8>=5.0.0",
+    "black>=22.0.0",
+    "isort>=5.0.0",
+]
+
+[project.urls]
+Homepage = "https://www.movici.nl/"
+Documentation = "https://docs.movici.nl/"
+Repository = "https://github.com/nginfra/movici-geo-query/"
+"Bug Tracker" = "https://github.com/nginfra/movici-geo-query/issues"
+
+[tool.setuptools.packages.find]
+include = ["movici_geo_query*"]
 
 [tool.black]
+line-length = 99
+include = '\.pyi?$'
 exclude = '''(
 /(
   | \.direnv
@@ -15,5 +79,12 @@ exclude = '''(
 )/
 )
 '''
-include = '\.pyi?$'
-line-length = 99
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+]
+testpaths = ["tests"]
