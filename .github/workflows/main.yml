@@ -17,7 +17,7 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
@@ -35,7 +35,7 @@ jobs:
   flake8:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
@@ -53,7 +53,7 @@ jobs:
   tests-c:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
@@ -101,7 +101,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Boost
         uses: ./.github/actions/install-boost
@@ -130,7 +130,7 @@ jobs:
     env:
       SDIST_FORMATS: gztar
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
