@@ -8,7 +8,7 @@ unittest-c:
 		cmake .. && \
 		make -j && \
 		./test
-  
+
 flake8:
 	flake8 movici_geo_query/
 

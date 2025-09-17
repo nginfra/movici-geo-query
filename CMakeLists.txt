@@ -30,7 +30,7 @@ endif()
 if(NOT Boost_FOUND)
     message(STATUS "Boost not found locally, downloading via FetchContent...")
     include(FetchContent)
-    
+
     # Use appropriate archive format for the platform
     if(WIN32)
         FetchContent_Declare(
@@ -47,24 +47,24 @@ if(NOT Boost_FOUND)
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         )
     endif()
-    
+
     set(BOOST_INCLUDE_LIBRARIES geometry)
     set(BOOST_ENABLE_CMAKE ON)
     FetchContent_MakeAvailable(Boost)
-    
+
     # Create interface target for compatibility
     add_library(boost_headers INTERFACE)
-    target_include_directories(boost_headers INTERFACE 
+    target_include_directories(boost_headers INTERFACE
         ${boost_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/c
     )
 else()
     # Use system Boost
     add_library(boost_headers INTERFACE)
-    target_include_directories(boost_headers INTERFACE 
+    target_include_directories(boost_headers INTERFACE
         ${Boost_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}/src 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/c
     )
 endif()
@@ -88,7 +88,7 @@ add_executable(test ${TEST_SOURCES})
 
 # Set compiler flags
 target_compile_definitions(test PRIVATE -DNOPYBIND)
-target_compile_options(test PRIVATE 
+target_compile_options(test PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra>
     $<$<CXX_COMPILER_ID:MSVC>:/W4>
 )
