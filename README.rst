@@ -79,7 +79,7 @@ are 3.8 and higher. It also requires Boost.geometry (see `Building from source`_
 .. code-block:: bash
   
   # install the package in editable mode with dev dependencies
-  pip3 install -e ".[dev]" -v
+  pip install -e ".[dev]"
 
   # run the c test suite
   mkdir build
