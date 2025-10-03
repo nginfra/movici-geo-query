@@ -1,4 +1,5 @@
 name: "Install Boost Headers"
+description: "Downloads and installs Boost headers for different platforms"
 
 inputs:
   os:
@@ -33,6 +34,20 @@ runs:
         BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
 
         wget -q https://archives.boost.io/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz -O boost.tar.gz
+
+        tar -xzf boost.tar.gz
+        mkdir -p ${BOOST_DIR}
+        mv boost_${BOOST_VERSION}/boost/* ${BOOST_DIR}
+
+    - name: Install boost (macOS)
+      if: inputs.os == 'macos-latest'
+      shell: bash
+      env:
+        BOOST_DIR: ${{ inputs.boost-dir }}
+      run: |
+        BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
+
+        curl -L -o boost.tar.gz https://archives.boost.io/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz
 
         tar -xzf boost.tar.gz
         mkdir -p ${BOOST_DIR}
