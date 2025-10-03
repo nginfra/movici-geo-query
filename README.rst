@@ -49,7 +49,7 @@ directory:
 
 .. code-block:: bash
   
-  BOOST_VERSION=1.79.0
+  BOOST_VERSION=1.89.0
   INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
   TMP_DIR=/tmp/boost_geometry
   mkdir -p ${TMP_DIR}
