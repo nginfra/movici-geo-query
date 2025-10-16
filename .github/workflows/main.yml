@@ -71,7 +71,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake ..
+          cmake .. -DBUILD_PYTHON_MODULE=OFF -DBUILD_TESTS=ON
           make -j
           ./test
           cd ..

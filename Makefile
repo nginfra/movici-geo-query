@@ -5,7 +5,7 @@ unittest-c:
 	rm -rf build/ && \
 		mkdir build && \
 		cd build && \
-		cmake .. && \
+		cmake .. -DBUILD_PYTHON_MODULE=OFF -DBUILD_TESTS=ON && \
 		make -j && \
 		./test
   
