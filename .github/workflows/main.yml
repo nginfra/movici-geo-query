@@ -11,7 +11,7 @@ on:
 
 env:
   BOOST_DIR: "boost/boost"
-  BOOST_VERSION: 1_79_0
+  BOOST_VERSION: 1_89_0
 
 jobs:
   black:
@@ -176,7 +176,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-wheels-and-test, build-sdist]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: dist-*
           path: dist/

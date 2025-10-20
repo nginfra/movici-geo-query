@@ -20,19 +20,16 @@ bandit:
 	bandit -f json -o bandit-report.json -r movici_geo_query/
 
 safety:
-	safety check -r requirements.txt --full-report
+	safety check --full-report
 
 pylint:
 	pylint movici_geo_query --exit-zero -r n | tee pylint.txt
 
 install:
-	pip install -r requirements.txt
-	python setup.py develop
+	pip install -e .
 
 install-dev:
-	pip install -r requirements-dev.txt
-	pip install -r requirements.txt
-	python setup.py develop
+	pip install -e .[dev]
 
 test-all: unittest flake8 coverage bandit safety
 

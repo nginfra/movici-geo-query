@@ -48,8 +48,8 @@ make sure the boost header files can be found by pip by placing them in pythons 
 directory:
 
 .. code-block:: bash
-
-  BOOST_VERSION=1.79.0
+  
+  BOOST_VERSION=1.89.0
   INCLUDE_DIR=$(python3 -c "import sysconfig as sc; print(sc.get_paths()['include'])")
   TMP_DIR=/tmp/boost_geometry
   mkdir -p ${TMP_DIR}
@@ -77,12 +77,9 @@ support C++17, such as Clang>=5. We have tests both in C++ and in Python. Suppor
 are 3.8 and higher. It also requires Boost.geometry (see `Building from source`_)
 
 .. code-block:: bash
-
-  # install the dev requirements
-  pip3 install -r requirements-dev.txt
-
-  # install the package in editable mode
-  pip3 install -e -v .
+  
+  # install the package in editable mode with dev dependencies
+  pip install -e ".[dev]"
 
   # run the c test suite
   mkdir build
