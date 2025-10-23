@@ -8,7 +8,7 @@ unittest-c:
 		cmake .. -DBUILD_PYTHON_MODULE=OFF -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug && \
 		make -j && \
 		./test
-  
+
 flake8:
 	flake8 movici_geo_query/
 

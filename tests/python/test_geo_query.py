@@ -1,10 +1,8 @@
 import numpy as np
 import pytest
+
 from movici_geo_query.geo_query import GeoQuery
-from movici_geo_query.geometry import (
-    PointGeometry,
-    LinestringGeometry,
-)
+from movici_geo_query.geometry import LinestringGeometry, PointGeometry
 
 
 @pytest.fixture
