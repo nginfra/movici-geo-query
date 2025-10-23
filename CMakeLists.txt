@@ -141,4 +141,7 @@ if(BUILD_PYTHON_MODULE)
 
     # Enable debug info in debug builds
     target_compile_options(_movici_geo_query PRIVATE $<$<CONFIG:Debug>:-g>)
+
+    # Install the Python module
+    install(TARGETS _movici_geo_query LIBRARY DESTINATION .)
 endif()
