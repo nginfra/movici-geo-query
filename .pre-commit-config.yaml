@@ -45,11 +45,3 @@ repos:
       - id: bandit
         args: ['-r', 'movici_geo_query/']
         exclude: '^tests/'
-
-  # Python linting (pylint)
-  - repo: https://github.com/pycqa/pylint
-    rev: v3.0.3
-    hooks:
-      - id: pylint
-        args: ['--exit-zero', '-r', 'n']
-        files: '^movici_geo_query/.*\.py$'
