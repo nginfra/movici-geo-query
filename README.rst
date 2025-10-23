@@ -21,10 +21,10 @@ Getting Started
 
 
   result = gq.nearest_to(points_b)
-  
+
   # for each point in point_b, gq.nearest returns the index of the nearest point in points_a. The
   # result will have the same length as points_b and contains indexes to the points_a array
-  
+
   print(result.indices) # np.array([1])
 
 
@@ -36,15 +36,15 @@ for it. Installation can be done using ``pip install movici-geo-query``
 
 
 .. _Building from source:
- 
+
 Building from source
 ^^^^^^^^^^^^^^^^^^^^^
-Building from source requires a C compiler that supports C++17, such as Clang>=5. To build 
-movici-geo-query from source you also need a version of Boost.geometry that contains the 
+Building from source requires a C compiler that supports C++17, such as Clang>=5. To build
+movici-geo-query from source you also need a version of Boost.geometry that contains the
 ``boost::geometry::index::rtree`` headers (eg. boost > 1.74.0). These can be installed using your
 favorite package manager, `downloaded from the Boost website <https://www.boost.org/>`_, or taken
 directly from `GitHub <https://github.com/boostorg/geometry>`_. When downloading manually,
-make sure the boost header files can be found by pip by placing them in pythons ``include`` 
+make sure the boost header files can be found by pip by placing them in pythons ``include``
 directory:
 
 .. code-block:: bash
