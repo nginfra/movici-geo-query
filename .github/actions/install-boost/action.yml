@@ -25,22 +25,8 @@ runs:
         mkdir -p $Env:BOOST_DIR
         Move-Item "boost_$Env:BOOST_VERSION/boost/*" $Env:BOOST_DIR
 
-    - name: Install boost (Linux)
-      if: inputs.os == 'ubuntu-latest'
-      shell: bash
-      env:
-        BOOST_DIR: ${{ inputs.boost-dir }}
-      run: |
-        BOOST_VERSION_DOT=$(echo ${BOOST_VERSION} | sed s/_/./g)
-
-        wget -q https://archives.boost.io/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz -O boost.tar.gz
-
-        tar -xzf boost.tar.gz
-        mkdir -p ${BOOST_DIR}
-        mv boost_${BOOST_VERSION}/boost/* ${BOOST_DIR}
-
-    - name: Install boost (macOS)
-      if: inputs.os == 'macos-latest'
+    - name: Install boost (Linux || macOS)
+      if: inputs.os == 'ubuntu-latest' || inputs.os == 'macos-latest'
       shell: bash
       env:
         BOOST_DIR: ${{ inputs.boost-dir }}
@@ -52,3 +38,4 @@ runs:
         tar -xzf boost.tar.gz
         mkdir -p ${BOOST_DIR}
         mv boost_${BOOST_VERSION}/boost/* ${BOOST_DIR}
+
