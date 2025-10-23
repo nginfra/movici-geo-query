@@ -17,8 +17,11 @@ if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
 
-# Check if BOOST_DIR is set and valid (e.g., in CI)
-if(DEFINED ENV{BOOST_DIR} AND EXISTS "$ENV{BOOST_DIR}")
+if(DEFINED ENV{BOOST_DIR})
+    if (NOT EXISTS "$ENV{BOOST_DIR}/boost/version.hpp")
+        message(FATAL_ERROR "BOOST_DIR is set to '$ENV{BOOST_DIR}' but does not contain Boost headers.")
+    endif()
+
     set(Boost_INCLUDE_DIRS "$ENV{BOOST_DIR}")
     set(Boost_FOUND TRUE)
     message(STATUS "Using Boost from BOOST_DIR: ${Boost_INCLUDE_DIRS}")
@@ -133,6 +136,9 @@ if(BUILD_PYTHON_MODULE)
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
     )
 
-    # Install the Python module
-    install(TARGETS _movici_geo_query LIBRARY DESTINATION .)
+    # Enable optimization in release builds
+    target_compile_options(_movici_geo_query PRIVATE $<$<CONFIG:Release>:-O3>)
+
+    # Enable debug info in debug builds
+    target_compile_options(_movici_geo_query PRIVATE $<$<CONFIG:Debug>:-g>)
 endif()

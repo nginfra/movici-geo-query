@@ -62,12 +62,10 @@ Repository = "https://github.com/nginfra/movici-geo-query/"
 "Bug Tracker" = "https://github.com/nginfra/movici-geo-query/issues"
 
 [tool.scikit-build]
-# Minimum required cmake version
 cmake.minimum-version = "3.20"
-# Build verbosity
 cmake.verbose = true
-# Install Python package files
 wheel.packages = ["movici_geo_query"]
+cmake.build-type = "Release"  # or "RelWithDebInfo", "Debug", etc.
 
 [tool.setuptools.packages.find]
 include = ["movici_geo_query*"]
