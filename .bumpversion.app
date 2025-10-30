@@ -1,5 +1,6 @@
 [bumpversion]
-current_version = 1.2.0
+current_version = 1.3.0
 allow_dirty = True
 
 [bumpversion:file:VERSION]
+[bumpversion:file:pyproject.toml]
