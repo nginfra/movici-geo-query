@@ -17,8 +17,11 @@ if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
 
-# Check if BOOST_DIR is set (e.g., in CI)
 if(DEFINED ENV{BOOST_DIR})
+    if (NOT EXISTS "$ENV{BOOST_DIR}/boost/version.hpp")
+        message(FATAL_ERROR "BOOST_DIR is set to '$ENV{BOOST_DIR}' but does not contain Boost headers.")
+    endif()
+
     set(Boost_INCLUDE_DIRS "$ENV{BOOST_DIR}")
     set(Boost_FOUND TRUE)
     message(STATUS "Using Boost from BOOST_DIR: ${Boost_INCLUDE_DIRS}")
@@ -75,34 +78,71 @@ if(WIN32)
     add_definitions(-DBOOST_ALL_DYN_LINK)
 endif()
 
-# Test sources
-set(TEST_SOURCES
-    src/python_geo_query.cpp
-    tests/c/boost_geo_query_test.cpp
-    tests/c/python_geo_query_test.cpp
-    tests/c/test_main.cpp
-)
+# Options to control what gets built
+option(BUILD_PYTHON_MODULE "Build Python module" ON)
+option(BUILD_TESTS "Build C++ tests" OFF)
 
-# Create test executable
-add_executable(test ${TEST_SOURCES})
+# Build C++ tests only if requested
+if(BUILD_TESTS)
+    # Test sources
+    set(TEST_SOURCES
+        src/python_geo_query.cpp
+        tests/c/boost_geo_query_test.cpp
+        tests/c/python_geo_query_test.cpp
+        tests/c/test_main.cpp
+    )
 
-# Set compiler flags
-target_compile_definitions(test PRIVATE -DNOPYBIND)
-target_compile_options(test PRIVATE
-    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra>
-    $<$<CXX_COMPILER_ID:MSVC>:/W4>
-)
+    # Create test executable
+    add_executable(test ${TEST_SOURCES})
 
-# Link with Boost
-target_link_libraries(test PRIVATE boost_headers)
+    # Set compiler flags
+    target_compile_definitions(test PRIVATE -DNOPYBIND)
+    target_compile_options(test PRIVATE
+        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    )
 
-# Enable debug info in debug builds
-target_compile_options(test PRIVATE $<$<CONFIG:Debug>:-g>)
+    # Link with Boost
+    target_link_libraries(test PRIVATE boost_headers)
+
+    # Enable debug info in debug builds
+    target_compile_options(test PRIVATE $<$<CONFIG:Debug>:-g>)
+endif()
 
 
 
-# -- OPTIONALLY build with pybind11 : remove -DNOPYBIND from CXX_FLAGS --
+# -- Build Python module with pybind11 --
 
-# set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -g -Wall")
-# find_package(pybind11 CONFIG)
-# pybind11_add_module(test ${SOURCES})
+if(BUILD_PYTHON_MODULE)
+    # Find Python and pybind11 for building the Python extension
+    find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+    find_package(pybind11 CONFIG REQUIRED)
+
+    # Python module sources
+    set(PYTHON_MODULE_SOURCES
+        src/_movici_geo_query.cpp
+        src/python_geo_query.cpp
+    )
+
+    # Create Python module
+    pybind11_add_module(_movici_geo_query ${PYTHON_MODULE_SOURCES})
+
+    # Link with Boost headers
+    target_link_libraries(_movici_geo_query PRIVATE boost_headers)
+
+    # Set compiler options for the Python module
+    target_compile_options(_movici_geo_query PRIVATE
+        $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    )
+
+    # Enable optimization in release builds
+    target_compile_options(_movici_geo_query PRIVATE $<$<CONFIG:Release>:-O3>)
+
+    # Enable debug info in debug builds
+    target_compile_options(_movici_geo_query PRIVATE $<$<CONFIG:Debug>:-g>)
+
+    # Install the Python module - Adding the install directive ensures the compiled .so file is
+    # properly packaged into the wheel.
+    install(TARGETS _movici_geo_query LIBRARY DESTINATION .)
+endif()
