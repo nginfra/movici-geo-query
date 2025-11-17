@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "movici-geo-query"
-version = "1.3.0"
+version = "1.4.0"
 description = "Geospatial queries powered by Boost Geom"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {text = "Movici Public License"}
