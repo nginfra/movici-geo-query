@@ -78,29 +78,29 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            python-version: "cp38-manylinux_x86_64"
-          - os: ubuntu-latest
-            python-version: "cp39-manylinux_x86_64"
-          - os: ubuntu-latest
             python-version: "cp310-manylinux_x86_64"
           - os: ubuntu-latest
             python-version: "cp311-manylinux_x86_64"
-          - os: windows-latest
-            python-version: "cp38-win_amd64"
-          - os: windows-latest
-            python-version: "cp39-win_amd64"
+          - os: ubuntu-latest
+            python-version: "cp312-manylinux_x86_64"
+          - os: ubuntu-latest
+            python-version: "cp313-manylinux_x86_64"
           - os: windows-latest
             python-version: "cp310-win_amd64"
           - os: windows-latest
             python-version: "cp311-win_amd64"
-          - os: macos-latest
-            python-version: "cp38-macosx_arm64"
-          - os: macos-latest
-            python-version: "cp39-macosx_arm64"
+          - os: windows-latest
+            python-version: "cp312-win_amd64"
+          - os: windows-latest
+            python-version: "cp313-win_amd64"
           - os: macos-latest
             python-version: "cp310-macosx_arm64"
           - os: macos-latest
             python-version: "cp311-macosx_arm64"
+          - os: macos-latest
+            python-version: "cp312-macosx_arm64"
+          - os: macos-latest
+            python-version: "cp313-macosx_arm64"
 
     runs-on: ${{ matrix.os }}
 
