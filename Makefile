@@ -9,15 +9,15 @@ unittest-c:
 		make -j && \
 		./test
 
-flake8:
-	flake8 movici_geo_query/
+ruff:
+	ruff format --check
+	ruff check
+
+toml-check:
+	taplo format --check .
 
 coverage:
 	pytest --cov `cd tests && python -c "import os, movici_geo_query; print(os.path.dirname(movici_geo_query.__file__))"` --cov-report=term-missing --cov-report=xml
-
-bandit:
-	bandit --recursive movici_geo_query/
-	bandit -f json -o bandit-report.json -r movici_geo_query/
 
 safety:
 	safety check --full-report
@@ -31,7 +31,7 @@ install:
 install-dev:
 	pip install -e .[dev]
 
-test-all: unittest flake8 coverage bandit safety
+test-all: unittest ruff toml-check coverage safety
 
 level=patch
 export level

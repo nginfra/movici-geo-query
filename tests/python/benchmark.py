@@ -1,5 +1,4 @@
 import contextlib
-import logging
 import tracemalloc
 from timeit import default_timer as timer
 
@@ -57,7 +56,7 @@ def trace(enable=True):
 if __name__ == "__main__":
     TRACE = True
     with trace(TRACE):
-        print(f"-- nearest_to --")
+        print("-- nearest_to --")
         run(nearest, 10, 10)
-        print(f"-- within_distance_of --")
+        print("-- within_distance_of --")
         run(in_radius, 10, 10)
