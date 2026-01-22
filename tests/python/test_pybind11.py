@@ -1,5 +1,4 @@
 import numpy as np
-
 from _movici_geo_query import CGeoQuery
 
 
