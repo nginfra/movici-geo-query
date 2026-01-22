@@ -16,32 +16,18 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
 
-  # Python code formatting (black)
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.5
     hooks:
-      - id: black
-        args: ['--line-length=99']
-        language_version: python3
+      - id: ruff-format
+        name: Ruff format
 
-  # Python import sorting (isort)
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: ['--profile', 'black', '--line-length', '99']
+      - id: ruff-check
+        name: Ruff lint
+        args: [ --fix ]
 
-  # Python linting (flake8)
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+  - repo: https://github.com/ComPWA/taplo-pre-commit
+    rev: v0.9.3
     hooks:
-      - id: flake8
-        args: ['--config=.flake8']
-
-  # Security linting (bandit)
-  - repo: https://github.com/pycqa/bandit
-    rev: 1.7.6
-    hooks:
-      - id: bandit
-        args: ['-r', 'movici_geo_query/']
-        exclude: '^tests/'
+      - id: taplo-format
+        name: Taplo format (TOML)
