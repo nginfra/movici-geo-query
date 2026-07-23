@@ -67,6 +67,8 @@ jobs:
             python-version: "cp312-manylinux_x86_64"
           - os: ubuntu-latest
             python-version: "cp313-manylinux_x86_64"
+          - os: ubuntu-latest
+            python-version: "cp314-manylinux_x86_64"
           - os: windows-latest
             python-version: "cp310-win_amd64"
           - os: windows-latest
@@ -75,6 +77,8 @@ jobs:
             python-version: "cp312-win_amd64"
           - os: windows-latest
             python-version: "cp313-win_amd64"
+          - os: windows-latest
+            python-version: "cp314-win_amd64"
           - os: macos-latest
             python-version: "cp310-macosx_arm64"
           - os: macos-latest
@@ -83,6 +87,8 @@ jobs:
             python-version: "cp312-macosx_arm64"
           - os: macos-latest
             python-version: "cp313-macosx_arm64"
+          - os: macos-latest
+            python-version: "cp314-macosx_arm64"
 
     runs-on: ${{ matrix.os }}
 
