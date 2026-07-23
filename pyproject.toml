@@ -58,7 +58,7 @@ Repository = "https://github.com/nginfra/movici-geo-query/"
 
 [tool.scikit-build]
 build.verbose = true
-cmake.version = ">=-3.20"
+cmake.version = ">=3.20"
 wheel.packages = ["movici_geo_query"]
 cmake.build-type = "Release"          # or "RelWithDebInfo", "Debug", etc.
 
